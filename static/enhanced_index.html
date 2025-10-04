@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxHack - 高度な税務AIアシスタント</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .version-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 20px;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-profile-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-profile-section h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .profile-form input, .profile-form select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .profile-form button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .profile-form button:hover {
+            background: #3730a3;
+        }
+
+        .news-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .news-section h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .news-item {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .news-description {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: #f1f5f9;
+            color: #374151;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .suggestions {
+            margin-top: 10px;
+        }
+
+        .suggestion {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .suggestion:hover {
+            background: #c7d2fe;
+        }
+
+        .calculation, .advice {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .calculation h4, .advice h4 {
+            color: #0369a1;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #4f46e5;
+        }
+
+        .input-group button {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .input-group button:hover {
+            transform: translateY(-2px);
+        }
+
+        .input-group button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .confidence-score {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .confidence-high {
+            color: #059669;
+        }
+
+        .confidence-medium {
+            color: #d97706;
+        }
+
+        .confidence-low {
+            color: #dc2626;
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-section h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .external-apis-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .external-apis-section h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .api-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .api-item:last-child {
+            border-bottom: none;
+        }
+
+        .api-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .api-status {
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .api-status.active {
+            color: #059669;
+        }
+
+        .api-status.mock {
+            color: #d97706;
+        }
+
+        .api-status.error {
+            color: #dc2626;
+        }
+
+        .cost-summary {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .cost-summary h4 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .cost-label {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        .cost-value {
+            color: #059669;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .learning-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .learning-section h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .learning-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .learning-item:last-child {
+            border-bottom: none;
+        }
+
+        .learning-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .learning-value {
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .recommendations {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .recommendations h4 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .recommendation-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #4f46e5;
+        }
+
+        .recommendation-text {
+            color: #374151;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .high-priority {
+            border-left-color: #dc2626 !important;
+        }
+
+        .medium-priority {
+            border-left-color: #d97706 !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .chat-area {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="version-badge">v2.0 Enhanced</div>
+            <h1><i class="fas fa-calculator"></i> TaxHack</h1>
+            <p>高度な税務AIアシスタント - Gemini強化版</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="user-profile-section">
+                    <h3><i class="fas fa-user"></i> ユーザープロフィール</h3>
+                    <div class="profile-form">
+                        <input type="number" id="age" placeholder="年齢" min="18" max="100">
+                        <input type="number" id="income" placeholder="年収（万円）" min="0">
+                        <select id="industry">
+                            <option value="">業界を選択</option>
+                            <option value="IT">IT</option>
+                            <option value="金融">金融</option>
+                            <option value="製造業">製造業</option>
+                            <option value="サービス業">サービス業</option>
+                            <option value="公務員">公務員</option>
+                        </select>
+                        <input type="text" id="location" placeholder="居住地">
+                        <button onclick="saveProfile()">プロフィール保存</button>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <h3><i class="fas fa-newspaper"></i> 最新税務ニュース</h3>
+                    <div id="news-container">
+                        <div class="news-item">
+                            <div class="news-title">読み込み中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3><i class="fas fa-chart-bar"></i> 統計情報</h3>
+                    <div id="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-label">会話数</span>
+                            <span class="stat-value" id="conversation-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">信頼度</span>
+                            <span class="stat-value" id="avg-confidence">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">登録ユーザー</span>
+                            <span class="stat-value" id="registered-users">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">知識ギャップ</span>
+                            <span class="stat-value" id="knowledge-gaps-count">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="external-apis-section">
+                    <h3><i class="fas fa-plug"></i> 外部API状況（コスト最適化）</h3>
+                    <div id="external-apis-container">
+                        <div class="api-item">
+                            <span class="api-label">e-Gov法令検索</span>
+                            <span class="api-status" id="egov-api-status">確認中...</span>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-label">e-Stat API</span>
+                            <span class="api-status" id="estat-api-status">確認中...</span>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-label">X API</span>
+                            <span class="api-status" id="x-api-status">確認中...</span>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-label">Gemini</span>
+                            <span class="api-status" id="gemini-api-status">確認中...</span>
+                        </div>
+                    </div>
+                    <div class="cost-summary">
+                        <h4><i class="fas fa-yen-sign"></i> コストサマリー</h4>
+                        <div id="cost-summary-container">
+                            <div class="cost-item">
+                                <span class="cost-label">総コスト</span>
+                                <span class="cost-value" id="total-cost">¥0</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="cost-label">API呼び出し数</span>
+                                <span class="cost-value" id="total-calls">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-section">
+                    <h3><i class="fas fa-brain"></i> 学習システム</h3>
+                    <div id="learning-container">
+                        <div class="learning-item">
+                            <span class="learning-label">総インタラクション数</span>
+                            <span class="learning-value" id="total-interactions">0</span>
+                        </div>
+                        <div class="learning-item">
+                            <span class="learning-label">知識ギャップ</span>
+                            <span class="learning-value" id="knowledge-gaps">0</span>
+                        </div>
+                        <div class="learning-item">
+                            <span class="learning-label">学習インサイト</span>
+                            <span class="learning-value" id="learning-insights">0</span>
+                        </div>
+                    </div>
+                    <div class="recommendations">
+                        <h4><i class="fas fa-lightbulb"></i> 推奨事項</h4>
+                        <div id="recommendations-container">
+                            <div class="recommendation-item">
+                                <span class="recommendation-text">読み込み中...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-area">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="message-content">
+                            <div>こんにちは！TaxHackの高度な税務AIアシスタントです。</div>
+                            <div>税務に関するご質問をお聞かせください。あなたのプロフィールに基づいて、より具体的で有用な回答を提供します。</div>
+                            <div class="message-time">システム</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div>AIが回答を生成中...</div>
+                </div>
+
+                <div class="chat-input">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" placeholder="税務に関する質問を入力してください..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let conversationCount = 0;
+        let totalConfidence = 0;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNews();
+            loadStats();
+            loadExternalAPIStatus();
+            loadCostSummary();
+            loadLearningInsights();
+            loadUserRecommendations();
+        });
+
+        // ニュースを読み込み
+        async function loadNews() {
+            try {
+                const response = await fetch('/news');
+                const data = await response.json();
+                displayNews(data.news);
+            } catch (error) {
+                console.error('ニュース読み込みエラー:', error);
+            }
+        }
+
+        // ニュースを表示
+        function displayNews(news) {
+            const container = document.getElementById('news-container');
+            container.innerHTML = '';
+            
+            news.forEach(item => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.innerHTML = `
+                    <div class="news-title">${item.title}</div>
+                    <div class="news-description">${item.description}</div>
+                `;
+                container.appendChild(newsItem);
+            });
+        }
+
+        // 統計情報を読み込み
+        async function loadStats() {
+            try {
+                // ユーザー固有の統計
+                const userResponse = await fetch(`/conversation-summary/${userId}`);
+                const userData = await userResponse.json();
+                
+                // システム全体の統計
+                const systemResponse = await fetch('/stats');
+                const systemData = await systemResponse.json();
+                
+                // 統合
+                const combinedData = {
+                    ...userData,
+                    ...systemData
+                };
+                
+                updateStats(combinedData);
+            } catch (error) {
+                console.error('統計読み込みエラー:', error);
+            }
+        }
+
+        // 統計情報を更新
+        function updateStats(data) {
+            document.getElementById('conversation-count').textContent = data.total_queries || 0;
+            document.getElementById('registered-users').textContent = data.registered_users || 0;
+            document.getElementById('knowledge-gaps-count').textContent = data.knowledge_gaps || 0;
+            
+            if (totalConfidence > 0) {
+                const avgConfidence = (totalConfidence / conversationCount * 100).toFixed(1);
+                document.getElementById('avg-confidence').textContent = avgConfidence + '%';
+            }
+        }
+
+        // 外部API状況を読み込み
+        async function loadExternalAPIStatus() {
+            try {
+                const response = await fetch('/external-apis/status');
+                const data = await response.json();
+                updateExternalAPIStatus(data);
+            } catch (error) {
+                console.error('外部API状況読み込みエラー:', error);
+            }
+        }
+
+        // 外部API状況を更新
+        function updateExternalAPIStatus(data) {
+            const egovStatus = document.getElementById('egov-api-status');
+            const estatStatus = document.getElementById('estat-api-status');
+            const xStatus = document.getElementById('x-api-status');
+            const geminiStatus = document.getElementById('gemini-api-status');
+
+            // e-Gov法令検索
+            if (data.e_gov_api.configured) {
+                egovStatus.textContent = 'アクティブ';
+                egovStatus.className = 'api-status active';
+            } else {
+                egovStatus.textContent = 'モック';
+                egovStatus.className = 'api-status mock';
+            }
+
+            // e-Stat API
+            if (data.e_stat_api.configured) {
+                estatStatus.textContent = 'アクティブ';
+                estatStatus.className = 'api-status active';
+            } else {
+                estatStatus.textContent = 'モック';
+                estatStatus.className = 'api-status mock';
+            }
+
+            // X API
+            if (data.x_api.configured) {
+                xStatus.textContent = 'アクティブ';
+                xStatus.className = 'api-status active';
+            } else {
+                xStatus.textContent = 'モック';
+                xStatus.className = 'api-status mock';
+            }
+
+            // Gemini
+            if (data.gemini.configured) {
+                geminiStatus.textContent = 'アクティブ';
+                geminiStatus.className = 'api-status active';
+            } else {
+                geminiStatus.textContent = 'エラー';
+                geminiStatus.className = 'api-status error';
+            }
+        }
+
+        // コストサマリーを読み込み
+        async function loadCostSummary() {
+            try {
+                const response = await fetch('/external-apis/cost-summary');
+                const data = await response.json();
+                updateCostSummary(data);
+            } catch (error) {
+                console.error('コストサマリー読み込みエラー:', error);
+            }
+        }
+
+        // コストサマリーを更新
+        function updateCostSummary(data) {
+            document.getElementById('total-cost').textContent = '¥' + data.total_cost.toFixed(2);
+            document.getElementById('total-calls').textContent = data.total_api_calls;
+        }
+
+        // 学習インサイトを読み込み
+        async function loadLearningInsights() {
+            try {
+                const response = await fetch('/learning/insights');
+                const data = await response.json();
+                updateLearningInsights(data);
+            } catch (error) {
+                console.error('学習インサイト読み込みエラー:', error);
+            }
+        }
+
+        // 学習インサイトを更新
+        function updateLearningInsights(data) {
+            document.getElementById('total-interactions').textContent = data.total_interactions || 0;
+            document.getElementById('knowledge-gaps').textContent = data.knowledge_gaps || 0;
+            document.getElementById('learning-insights').textContent = data.learning_insights || 0;
+        }
+
+        // ユーザー推奨事項を読み込み
+        async function loadUserRecommendations() {
+            try {
+                const response = await fetch(`/learning/recommendations/${userId}`);
+                const data = await response.json();
+                updateUserRecommendations(data);
+            } catch (error) {
+                console.error('ユーザー推奨事項読み込みエラー:', error);
+            }
+        }
+
+        // ユーザー推奨事項を更新
+        function updateUserRecommendations(data) {
+            const container = document.getElementById('recommendations-container');
+            
+            if (!data.recommendations || data.recommendations.length === 0) {
+                container.innerHTML = '<div class="recommendation-item"><span class="recommendation-text">推奨事項はありません</span></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.recommendations.slice(0, 3).forEach(rec => {
+                const item = document.createElement('div');
+                item.className = 'recommendation-item';
+                
+                const priorityClass = rec.priority === 'high' ? 'high-priority' : 'medium-priority';
+                item.innerHTML = `
+                    <span class="recommendation-text ${priorityClass}">
+                        <strong>${rec.title}</strong><br>
+                        ${rec.description}
+                    </span>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // プロフィールを保存
+        async function saveProfile() {
+            const profile = {
+                age: document.getElementById('age').value ? parseInt(document.getElementById('age').value) : null,
+                income: document.getElementById('income').value ? parseInt(document.getElementById('income').value) : null,
+                industry: document.getElementById('industry').value || null,
+                location: document.getElementById('location').value || null
+            };
+
+            try {
+                const response = await fetch(`/user-profile/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(profile)
+                });
+
+                if (response.ok) {
+                    alert('プロフィールが保存されました！');
+                } else {
+                    alert('プロフィールの保存に失敗しました。');
+                }
+            } catch (error) {
+                console.error('プロフィール保存エラー:', error);
+                alert('エラーが発生しました。');
+            }
+        }
+
+        // メッセージを送信
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // ユーザーメッセージを表示
+            addMessage(message, 'user');
+            input.value = '';
+
+            // ローディング表示
+            showLoading();
+
+            try {
+                const response = await fetch('/ask-enhanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: message,
+                        user_id: userId
+                    })
+                });
+
+                const data = await response.json();
+                
+                // ボットの回答を表示
+                displayBotResponse(data);
+                
+                // 統計を更新
+                conversationCount++;
+                if (data.confidence_score) {
+                    totalConfidence += data.confidence_score;
+                }
+                updateStats({total_queries: conversationCount});
+
+            } catch (error) {
+                console.error('メッセージ送信エラー:', error);
+                
+                // エラーメッセージを表示
+                let errorMessage = '申し訳ございません。エラーが発生しました。';
+                
+                if (error.response) {
+                    const errorData = await error.response.json();
+                    if (errorData.error && errorData.error.message) {
+                        errorMessage = errorData.error.message;
+                    }
+                }
+                
+                addMessage(errorMessage, 'bot');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ボットの回答を表示
+        function displayBotResponse(data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            let content = `
+                <div>${data.answer}</div>
+                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            `;
+
+            // 信頼度スコアを表示
+            if (data.confidence_score) {
+                const confidenceClass = data.confidence_score > 0.8 ? 'confidence-high' : 
+                                       data.confidence_score > 0.6 ? 'confidence-medium' : 'confidence-low';
+                content += `<div class="confidence-score ${confidenceClass}">信頼度: ${(data.confidence_score * 100).toFixed(1)}%</div>`;
+            }
+
+            // 計算結果を表示
+            if (data.context && data.context.calculation) {
+                content += `
+                    <div class="calculation">
+                        <h4><i class="fas fa-calculator"></i> 税務計算</h4>
+                        <div>${data.context.calculation}</div>
+                    </div>
+                `;
+            }
+
+            // アドバイスを表示
+            if (data.context && data.context.advice) {
+                content += `
+                    <div class="advice">
+                        <h4><i class="fas fa-lightbulb"></i> 税務アドバイス</h4>
+                        <div>${data.context.advice}</div>
+                    </div>
+                `;
+            }
+
+            // 提案を表示
+            if (data.suggestions && data.suggestions.length > 0) {
+                content += '<div class="suggestions">';
+                data.suggestions.forEach(suggestion => {
+                    content += `<span class="suggestion" onclick="sendSuggestion('${suggestion}')">${suggestion}</span>`;
+                });
+                content += '</div>';
+            }
+
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // メッセージを追加
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const content = `
+                <div class="message-content">
+                    <div>${text}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            messageDiv.innerHTML = content;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 提案を送信
+        function sendSuggestion(suggestion) {
+            document.getElementById('messageInput').value = suggestion;
+            sendMessage();
+        }
+
+        // ローディング表示
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('sendButton').disabled = true;
+        }
+
+        // ローディング非表示
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('sendButton').disabled = false;
+        }
+
+        // キーボードイベント
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

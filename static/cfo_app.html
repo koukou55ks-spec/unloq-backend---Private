@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unloq - あなた専属のパーソナルCFO</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #13131a;
+            --bg-card: #1a1a24;
+            --accent-gold: #fbbf24;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+            --border: rgba(255, 255, 255, 0.1);
+            --glow-gold: rgba(251, 191, 36, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 背景グラデーション */
+        .bg-gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.4;
+            background: radial-gradient(circle at 20% 30%, rgba(251, 191, 36, 0.15), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15), transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), transparent 50%);
+        }
+
+        /* ヘッダー */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+        }
+
+        /* メインコンテナ */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ヒーローセクション */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-decoration: none;
+            color: var(--bg-primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px var(--glow-gold);
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px var(--glow-gold);
+        }
+
+        /* メインレイアウト */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .thinking-topics {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .topic-item {
+            padding: 1rem;
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .topic-item:hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: var(--accent-gold);
+            transform: translateX(5px);
+        }
+
+        .topic-icon {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .topic-text {
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+        }
+
+        /* チャットエリア */
+        .chat-area {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(139, 92, 246, 0.1));
+        }
+
+        .chat-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, var(--accent-purple), #ec4899);
+        }
+
+        .message.cfo .message-avatar {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 75%;
+        }
+
+        .message-bubble {
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            line-height: 1.7;
+        }
+
+        .message.user .message-bubble {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .message.cfo .message-bubble {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        /* CFO特有のメッセージスタイル */
+        .cfo-insight {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--accent-green);
+            border-radius: 8px;
+        }
+
+        .cfo-question {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 8px;
+        }
+
+        .cfo-warning {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid #ef4444;
+            border-radius: 8px;
+        }
+
+        /* シナリオ分析 */
+        .scenario-analysis {
+            margin-top: 1.5rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .scenario-card {
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-gold);
+        }
+
+        .scenario-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .scenario-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .scenario-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-optimistic {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .badge-realistic {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .badge-pessimistic {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .scenario-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        /* タイムライン */
+        .timeline {
+            margin-top: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.6rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--glow-gold);
+        }
+
+        .timeline-date {
+            font-size: 0.875rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .timeline-content {
+            margin-top: 0.25rem;
+            color: var(--text-secondary);
+        }
+
+        /* 入力エリア */
+        .chat-input-area {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 50px;
+            max-height: 120px;
+            padding: 0.875rem 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px var(--glow-gold);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            border: none;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--glow-gold);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* タイピングインジケーター */
+        .typing {
+            display: flex;
+            gap: 0.25rem;
+            padding: 1rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9375rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px var(--glow-gold);
+        }
+
+        .form-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--glow-gold);
+        }
+
+        /* ニュースカード */
+        .news-card {
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            background: rgba(59, 130, 246, 0.15);
+            transform: translateX(3px);
+        }
+
+        .news-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .news-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .news-insight {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8125rem;
+            color: var(--accent-gold);
+            font-style: italic;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">💡</span>
+                <div>
+                    <span class="logo-text">Unloq</span>
+                    <div class="tagline">あなた専属のパーソナルCFO</div>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- ヒーローセクション -->
+    <section class="hero">
+        <h1 class="hero-title">
+            <span class="hero-gradient">億万長者の思考</span>を、<br>
+            あなたに。
+        </h1>
+        <p class="hero-subtitle">
+            知識格差をゼロに。思考を拡張する、パーソナルCFO。
+        </p>
+        <a href="#chat" class="hero-cta">
+            <i class="fas fa-brain"></i>
+            今すぐ相談を始める
+        </a>
+    </section>
+
+    <!-- メインコンテンツ -->
+    <div class="container">
+        <div class="main-layout" id="chat">
+            <!-- サイドバー -->
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-user"></i>
+                        あなたのプロフィール
+                    </div>
+                    <div id="userProfile" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">プロフィールを設定すると、よりパーソナライズされた提案を受けられます</p>
+                    </div>
+                    <button onclick="showProfileModal()" style="width: 100%; margin-top: 1rem; padding: 0.75rem; background: rgba(251, 191, 36, 0.2); border: 1px solid var(--accent-gold); border-radius: 8px; color: var(--accent-gold); font-weight: 600; cursor: pointer;">
+                        ⚙️ プロフィール設定
+                    </button>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-comments"></i>
+                        今日の対話テーマ
+                    </div>
+                    <div id="conversationStarterContainer" style="max-height: 400px; overflow-y: auto;">
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">読み込み中...</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-history"></i>
+                        思考の変遷
+                    </div>
+                    <div id="thoughtHistory" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto;">
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">会話を始めると、ここにあなたの思考の変化が記録されます</p>
+                    </div>
+                    <button onclick="summarizeConversation()" style="width: 100%; margin-top: 1rem; padding: 0.75rem; background: rgba(139, 92, 246, 0.2); border: 1px solid var(--accent-purple); border-radius: 8px; color: var(--accent-purple); font-weight: 600; cursor: pointer;">
+                        🧠 会話を振り返る
+                    </button>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-lightbulb"></i>
+                        最近考えていること
+                    </div>
+                    <div class="thinking-topics">
+                        <div class="topic-item" onclick="sendTopic('副業を始めるべきか')">
+                            <div class="topic-icon">💼</div>
+                            <div class="topic-text">副業を始めるべきか</div>
+                        </div>
+                        <div class="topic-item" onclick="sendTopic('投資を増やすべきか')">
+                            <div class="topic-icon">📈</div>
+                            <div class="topic-text">投資を増やすべきか</div>
+                        </div>
+                        <div class="topic-item" onclick="sendTopic('転職のタイミング')">
+                            <div class="topic-icon">🚀</div>
+                            <div class="topic-text">転職のタイミング</div>
+                        </div>
+                        <div class="topic-item" onclick="sendTopic('独立すべきか')">
+                            <div class="topic-icon">🦅</div>
+                            <div class="topic-text">独立すべきか</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-gavel"></i>
+                        法令検索
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input
+                            type="text"
+                            id="lawSearchInput"
+                            class="form-input"
+                            placeholder="例: 所得税、消費税"
+                            style="width: 100%; margin-bottom: 0.5rem;"
+                        >
+                        <button onclick="searchLaw()" style="width: 100%; padding: 0.5rem; background: rgba(251, 191, 36, 0.2); border: 1px solid var(--accent-gold); border-radius: 8px; color: var(--accent-gold); font-weight: 600; cursor: pointer;">
+                            🔍 検索
+                        </button>
+                    </div>
+                    <div id="lawResults" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto;">
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">税法や関連法令を検索できます</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-book-open"></i>
+                        富裕層が知っている知識
+                    </div>
+                    <div class="thinking-topics">
+                        <div class="topic-item" onclick="sendTopic('富裕層の節税テクニック')">
+                            <div class="topic-icon">💎</div>
+                            <div class="topic-text">節税テクニックトップ3</div>
+                        </div>
+                        <div class="topic-item" onclick="sendTopic('資産運用の秘訣')">
+                            <div class="topic-icon">🏆</div>
+                            <div class="topic-text">資産運用の秘訣</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <i class="fas fa-chart-line"></i>
+                        10年後の未来を見る
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <canvas id="timelineChart" style="max-height: 200px;"></canvas>
+                    </div>
+                    <button onclick="showTimelineAnalysis()" style="width: 100%; margin-top: 1rem; padding: 0.75rem; background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple)); border: none; border-radius: 8px; color: var(--bg-primary); font-weight: 600; cursor: pointer;">
+                        📈 10年計画を見る
+                    </button>
+                </div>
+            </aside>
+
+            <!-- チャットエリア -->
+            <main class="chat-area">
+                <div class="chat-header">
+                    <h2 class="chat-title">あなた専属のCFOと対話する</h2>
+                    <p class="chat-subtitle">深い質問で、あなたの思考を拡張します</p>
+                </div>
+
+                <div class="messages" id="messages">
+                    <div class="message cfo">
+                        <div class="message-avatar">💡</div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                こんにちは。私はあなた専属のパーソナルCFOです。
+                                <br><br>
+                                私の役割は、単に計算をすることではありません。
+                                <strong>あなたの思考を拡張し、富裕層が持つ金融知識を民主化すること</strong>です。
+
+                                <div class="cfo-question">
+                                    <strong>🤔 今日はどんな意思決定について、一緒に考えましょうか？</strong>
+                                    <br><br>
+                                    例えば:
+                                    <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                                        <li>「副業を始めるべきか？」</li>
+                                        <li>「独立のタイミングは？」</li>
+                                        <li>「投資をどう増やすべきか？」</li>
+                                    </ul>
+                                </div>
+
+                                <div class="cfo-insight" style="margin-top: 1rem;">
+                                    💡 <strong>重要:</strong> 私は単なる計算機ではありません。
+                                    <br>
+                                    あなたの本当の目的を一緒に探り、5年後・10年後から逆算して、今日すべきことを設計します。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea
+                            class="chat-input"
+                            id="chatInput"
+                            placeholder="あなたの考えていることを教えてください..."
+                            rows="1"
+                        ></textarea>
+                        <button class="send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- プロフィール設定モーダル -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ プロフィール設定</h3>
+                <button class="modal-close" onclick="closeProfileModal()">×</button>
+            </div>
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label class="form-label">年齢層</label>
+                    <select class="form-select" id="ageGroup" required>
+                        <option value="">選択してください</option>
+                        <option value="20代">20代</option>
+                        <option value="30代">30代</option>
+                        <option value="40代">40代</option>
+                        <option value="50代">50代</option>
+                        <option value="60代以上">60代以上</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">職業</label>
+                    <select class="form-select" id="occupation" required>
+                        <option value="">選択してください</option>
+                        <option value="会社員">会社員</option>
+                        <option value="経営者・役員">経営者・役員</option>
+                        <option value="フリーランス">フリーランス</option>
+                        <option value="公務員">公務員</option>
+                        <option value="学生">学生</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">年収層（概算）</label>
+                    <select class="form-select" id="incomeLevel" required>
+                        <option value="">選択してください</option>
+                        <option value="300万円未満">300万円未満</option>
+                        <option value="300-500万円">300-500万円</option>
+                        <option value="500-800万円">500-800万円</option>
+                        <option value="800-1000万円">800-1000万円</option>
+                        <option value="1000万円以上">1000万円以上</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">財務目標</label>
+                    <select class="form-select" id="financialGoal" required>
+                        <option value="">選択してください</option>
+                        <option value="資産形成の開始">資産形成の開始</option>
+                        <option value="副業・起業準備">副業・起業準備</option>
+                        <option value="節税対策">節税対策</option>
+                        <option value="投資ポートフォリオ構築">投資ポートフォリオ構築</option>
+                        <option value="早期退職（FIRE）">早期退職（FIRE）</option>
+                        <option value="資産1億円達成">資産1億円達成</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">興味のあるトピック（複数選択可）</label>
+                    <select class="form-select" id="interests" multiple size="5" required>
+                        <option value="節税">節税テクニック</option>
+                        <option value="投資">資産運用・投資</option>
+                        <option value="副業">副業・複業</option>
+                        <option value="起業">起業・法人設立</option>
+                        <option value="不動産">不動産投資</option>
+                        <option value="相続">相続・贈与</option>
+                    </select>
+                </div>
+                <button type="submit" class="form-button">💾 保存する</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let conversationHistory = [];
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let userProfile = null;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadConversationHistory();
+            loadUserProfile();
+
+            // 対話スターター読み込み（外部スクリプトから）
+            setTimeout(() => {
+                if (typeof loadConversationStarter === 'function') {
+                    loadConversationStarter();
+                }
+            }, 1500);
+        });
+
+        // 会話履歴の永続化
+        function saveConversationHistory() {
+            localStorage.setItem('cfo_conversation_' + userId, JSON.stringify(conversationHistory));
+            localStorage.setItem('cfo_userId', userId);
+        }
+
+        function loadConversationHistory() {
+            const savedUserId = localStorage.getItem('cfo_userId');
+            if (savedUserId) {
+                userId = savedUserId;
+                const saved = localStorage.getItem('cfo_conversation_' + userId);
+                if (saved) {
+                    conversationHistory = JSON.parse(saved);
+                    // 履歴を表示
+                    conversationHistory.forEach(item => {
+                        addMessage(item.user, 'user', false);
+                        addCFOMessage(item.cfo, false);
+                    });
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            chatInput.addEventListener('input', (e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            });
+
+            sendBtn.addEventListener('click', sendMessage);
+        }
+
+        function sendTopic(topic) {
+            document.getElementById('chatInput').value = topic;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+
+            showTypingIndicator();
+
+            try {
+                // CFO視点のプロンプトエンジニアリング
+                const cfoPrompt = `
+あなたはパーソナルCFO（最高財務責任者）です。以下の原則に従って回答してください：
+
+【あなたの役割】
+1. 単なる計算や情報提供ではなく、「思考の拡張」を提供する
+2. ソクラテス式対話で、ユーザーの本当の目的を引き出す
+3. 富裕層が知っている深い知識を民主化する
+4. 5年後・10年後から逆算して、戦略的に考える
+
+【回答スタイル】
+1. まず質問の本質を理解する
+2. 表面的な回答の後、必ず「なぜその質問をしたのか」を問う
+3. 複数のシナリオを提示する
+4. 具体的な数字とタイムラインを示す
+5. 次のアクションステップを提案する
+
+【富裕層の知識を活用】
+- 一般的な情報と、「富裕層が知っている深い知識」を対比する
+- 税制優遇、節税スキーム、投資戦略の裏側を説明する
+
+【ユーザーの質問】
+${message}
+
+【回答形式】
+1. 直接的な回答
+2. 「でも、もっと大事な質問があります」で深掘り
+3. シナリオ分析（楽観・現実・悲観）
+4. CFOとしての推奨
+5. 次のステップ
+
+温かく、知的で、戦略的に回答してください。
+                `;
+
+                const response = await fetch('http://127.0.0.1:8003/ask-enhanced', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: cfoPrompt,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                removeTypingIndicator();
+                addCFOMessage(data.answer || '申し訳ございません。もう一度お試しください。');
+
+                conversationHistory.push({
+                    user: message,
+                    cfo: data.answer
+                });
+                saveConversationHistory();
+                updateThoughtHistory();
+
+                // シナリオ分析の自動生成
+                analyzeAndDisplayScenarios(data.answer);
+
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+                addCFOMessage('申し訳ございません。接続エラーが発生しました。サーバーが起動しているか確認してください。');
+            }
+        }
+
+        function addMessage(text, sender, scroll = true) {
+            const container = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const avatar = sender === 'user' ? '👤' : '💡';
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${escapeHtml(text)}</div>
+                </div>
+            `;
+
+            container.appendChild(messageDiv);
+            if (scroll) container.scrollTop = container.scrollHeight;
+        }
+
+        function addCFOMessage(text, scroll = true) {
+            const container = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message cfo';
+
+            // テキストを解析して特別なフォーマットを適用
+            let formattedText = text;
+
+            // 強調部分を検出
+            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // リストを検出
+            formattedText = formattedText.replace(/・(.*?)(\n|$)/g, '<li>$1</li>');
+            if (formattedText.includes('<li>')) {
+                formattedText = formattedText.replace(/(<li>.*<\/li>)/s, '<ul style="margin: 0.5rem 0; padding-left: 1.5rem;">$1</ul>');
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">💡</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        ${formattedText}
+                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                            <button onclick="askWhy()" style="padding: 0.5rem 1rem; background: rgba(251, 191, 36, 0.2); border: 1px solid var(--accent-gold); border-radius: 8px; color: var(--accent-gold); cursor: pointer; font-size: 0.875rem; font-weight: 600;">
+                                💡 なぜ富裕層はこう考える？
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(messageDiv);
+            if (scroll) container.scrollTop = container.scrollHeight;
+        }
+
+        // Why機能: 富裕層の知識を深掘り
+        async function askWhy() {
+            const lastCfoMessage = conversationHistory[conversationHistory.length - 1]?.cfo;
+            if (!lastCfoMessage) return;
+
+            const whyPrompt = `
+あなたはパーソナルCFOです。先ほどの回答について、「富裕層が知っている深い知識」を民主化してください。
+
+【先ほどの回答】
+${lastCfoMessage}
+
+【指示】
+1. 一般人が知らない「富裕層の思考パターン」を解説
+2. なぜ富裕層はこう考えるのか、その背景を説明
+3. 具体的な数字や事例を提示
+4. 一般人がすぐに実践できるアクションに落とし込む
+
+温かく、教育的に回答してください。
+            `;
+
+            addMessage('💡 なぜ富裕層はこう考えるのですか？', 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('http://127.0.0.1:8003/ask-enhanced', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: whyPrompt,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                removeTypingIndicator();
+                addCFOMessage(data.answer || '申し訳ございません。もう一度お試しください。');
+
+                conversationHistory.push({
+                    user: '💡 なぜ富裕層はこう考えるのですか？',
+                    cfo: data.answer
+                });
+                saveConversationHistory();
+
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+            }
+        }
+
+        // シナリオ分析の自動生成
+        function analyzeAndDisplayScenarios(text) {
+            // 数値を含む場合のみシナリオを表示
+            const hasNumbers = /[\d,]+万|[\d,]+円|[\d]+%/.test(text);
+            if (!hasNumbers) return;
+
+            const container = document.getElementById('messages');
+            const scenarioDiv = document.createElement('div');
+            scenarioDiv.className = 'message cfo';
+            scenarioDiv.innerHTML = `
+                <div class="message-avatar">📊</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <strong style="color: var(--accent-gold); font-size: 1.125rem;">📊 シナリオ分析</strong>
+                        <div class="scenario-analysis">
+                            <div class="scenario-card">
+                                <div class="scenario-header">
+                                    <div class="scenario-title">🚀 楽観シナリオ</div>
+                                    <div class="scenario-badge badge-optimistic">Best Case</div>
+                                </div>
+                                <div class="scenario-metrics">
+                                    <div class="metric">
+                                        <div class="metric-label">5年後</div>
+                                        <div class="metric-value">+150%</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">成功確率</div>
+                                        <div class="metric-value">30%</div>
+                                    </div>
+                                </div>
+                                <p style="margin-top: 0.75rem; color: var(--text-secondary);">すべてが計画通りに進み、市場も追い風の場合</p>
+                            </div>
+                            <div class="scenario-card">
+                                <div class="scenario-header">
+                                    <div class="scenario-title">📈 現実シナリオ</div>
+                                    <div class="scenario-badge badge-realistic">Realistic</div>
+                                </div>
+                                <div class="scenario-metrics">
+                                    <div class="metric">
+                                        <div class="metric-label">5年後</div>
+                                        <div class="metric-value">+80%</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">成功確率</div>
+                                        <div class="metric-value">60%</div>
+                                    </div>
+                                </div>
+                                <p style="margin-top: 0.75rem; color: var(--text-secondary);">適度な努力と通常の市場環境での予測</p>
+                            </div>
+                            <div class="scenario-card">
+                                <div class="scenario-header">
+                                    <div class="scenario-title">⚠️ 悲観シナリオ</div>
+                                    <div class="scenario-badge badge-pessimistic">Worst Case</div>
+                                </div>
+                                <div class="scenario-metrics">
+                                    <div class="metric">
+                                        <div class="metric-label">5年後</div>
+                                        <div class="metric-value">+20%</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">リスク確率</div>
+                                        <div class="metric-value">10%</div>
+                                    </div>
+                                </div>
+                                <p style="margin-top: 0.75rem; color: var(--text-secondary);">予期せぬ困難や市場の逆風に直面した場合</p>
+                            </div>
+                        </div>
+                        <div class="cfo-insight" style="margin-top: 1rem;">
+                            💡 <strong>CFOの見解:</strong> 現実シナリオを基準に計画を立て、楽観シナリオの可能性を追求しながら、悲観シナリオへの備えも忘れずに。
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(scenarioDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message cfo';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">💡</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="typing">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // タイムライン可視化
+        let timelineChart = null;
+
+        function initTimelineChart() {
+            const ctx = document.getElementById('timelineChart');
+            if (!ctx) return;
+
+            timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['現在', '1年後', '3年後', '5年後', '10年後'],
+                    datasets: [{
+                        label: '資産推移',
+                        data: [100, 120, 165, 230, 420],
+                        borderColor: 'rgb(251, 191, 36)',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function showTimelineAnalysis() {
+            const timelinePrompt = `
+あなたはパーソナルCFOです。ユーザーの10年後の未来について、具体的なタイムライン分析を提供してください。
+
+【指示】
+1. 現在から10年後までの資産形成ロードマップを提示
+2. 各フェーズ(1年後、3年後、5年後、10年後)で何をすべきか具体的に
+3. 各時点での予想される資産額や収入を数値で示す
+4. 富裕層が実践している時間軸の考え方を解説
+
+【回答形式】
+タイムライン形式で、以下を含めてください:
+- 年次: 〇〇年後
+- 目標資産額: 具体的な数値
+- やるべきこと: アクションアイテム
+- 富裕層の視点: なぜこのタイミングが重要か
+
+温かく、具体的に、希望を持てるように回答してください。
+            `;
+
+            addMessage('📈 10年後の未来を見せてください', 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('http://127.0.0.1:8003/ask-enhanced', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: timelinePrompt,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                // タイムライン表示
+                const container = document.getElementById('messages');
+                const timelineDiv = document.createElement('div');
+                timelineDiv.className = 'message cfo';
+                timelineDiv.innerHTML = `
+                    <div class="message-avatar">📈</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <strong style="color: var(--accent-gold); font-size: 1.125rem;">📈 あなたの10年ロードマップ</strong>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-date">1年後</div>
+                                    <div class="timeline-content">緊急資金の確保 + 収入源の多様化開始</div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-date">3年後</div>
+                                    <div class="timeline-content">副業・投資収入が本業の30%に到達</div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-date">5年後</div>
+                                    <div class="timeline-content">資産1,000万円突破 + 選択肢の拡大</div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-date">10年後</div>
+                                    <div class="timeline-content">経済的自由の達成 + 社会貢献フェーズへ</div>
+                                </div>
+                            </div>
+                            ${data.answer}
+                            <div class="cfo-insight" style="margin-top: 1.5rem;">
+                                💡 <strong>CFOの視点:</strong> 富裕層は「10年後から逆算」して今日の行動を決めています。あなたも今日から、10年後の自分のために投資を始めましょう。
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(timelineDiv);
+                container.scrollTop = container.scrollHeight;
+
+                conversationHistory.push({
+                    user: '📈 10年後の未来を見せてください',
+                    cfo: data.answer
+                });
+                saveConversationHistory();
+
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+            }
+        }
+
+        // 会話の要約と振り返り
+        async function summarizeConversation() {
+            if (conversationHistory.length === 0) {
+                alert('まだ会話がありません。CFOと対話を始めてください。');
+                return;
+            }
+
+            const conversationText = conversationHistory.map((item, index) =>
+                `${index + 1}. あなた: ${item.user}\nCFO: ${item.cfo.substring(0, 200)}...`
+            ).join('\n\n');
+
+            const summaryPrompt = `
+あなたはパーソナルCFOです。ユーザーとの会話を振り返り、思考の変遷を分析してください。
+
+【会話履歴】
+${conversationText}
+
+【指示】
+1. ユーザーの思考がどう変化したか、3つのポイントで要約
+2. この会話で得た最も重要な気づきは何か
+3. 次に考えるべきテーマは何か
+4. ユーザーの成長を褒め、励ます
+
+温かく、具体的に、次のステップを示してください。
+            `;
+
+            addMessage('🧠 これまでの会話を振り返りたいです', 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('http://127.0.0.1:8003/ask-enhanced', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: summaryPrompt,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                const container = document.getElementById('messages');
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'message cfo';
+                summaryDiv.innerHTML = `
+                    <div class="message-avatar">🧠</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <strong style="color: var(--accent-purple); font-size: 1.125rem;">🧠 あなたの思考の変遷</strong>
+                            ${data.answer}
+                            <div class="cfo-insight" style="margin-top: 1.5rem;">
+                                💡 <strong>CFOより:</strong> 振り返ることで、思考は深まります。富裕層は定期的に自分の決断を振り返り、改善を続けています。あなたも素晴らしい成長をしています。
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(summaryDiv);
+                container.scrollTop = container.scrollHeight;
+
+                // 思考の変遷を更新
+                updateThoughtHistory();
+
+                conversationHistory.push({
+                    user: '🧠 これまでの会話を振り返りたいです',
+                    cfo: data.answer
+                });
+                saveConversationHistory();
+
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+            }
+        }
+
+        // 思考の変遷を更新
+        function updateThoughtHistory() {
+            const historyContainer = document.getElementById('thoughtHistory');
+            if (!historyContainer || conversationHistory.length === 0) return;
+
+            const recentThoughts = conversationHistory.slice(-5).reverse();
+            historyContainer.innerHTML = recentThoughts.map((item, index) => `
+                <div style="padding: 0.75rem; background: rgba(139, 92, 246, 0.1); border-left: 2px solid var(--accent-purple); border-radius: 6px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                        ${index === 0 ? '最新' : `${index + 1}回前`}
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--text-primary);">
+                        ${item.user.substring(0, 50)}${item.user.length > 50 ? '...' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // プロフィール管理
+        function showProfileModal() {
+            document.getElementById('profileModal').classList.add('active');
+            // 既存のプロフィールを読み込む
+            if (userProfile) {
+                document.getElementById('ageGroup').value = userProfile.ageGroup || '';
+                document.getElementById('occupation').value = userProfile.occupation || '';
+                document.getElementById('incomeLevel').value = userProfile.incomeLevel || '';
+                document.getElementById('financialGoal').value = userProfile.financialGoal || '';
+                const interestsSelect = document.getElementById('interests');
+                if (userProfile.interests) {
+                    Array.from(interestsSelect.options).forEach(option => {
+                        option.selected = userProfile.interests.includes(option.value);
+                    });
+                }
+            }
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            const interestsSelect = document.getElementById('interests');
+            const selectedInterests = Array.from(interestsSelect.selectedOptions).map(opt => opt.value);
+
+            userProfile = {
+                ageGroup: document.getElementById('ageGroup').value,
+                occupation: document.getElementById('occupation').value,
+                incomeLevel: document.getElementById('incomeLevel').value,
+                financialGoal: document.getElementById('financialGoal').value,
+                interests: selectedInterests
+            };
+
+            localStorage.setItem('cfo_profile_' + userId, JSON.stringify(userProfile));
+            updateProfileDisplay();
+            closeProfileModal();
+
+            // プロフィール設定完了のメッセージ
+            addCFOMessage(`プロフィールを設定いただきありがとうございます！${userProfile.ageGroup}・${userProfile.occupation}で${userProfile.financialGoal}を目指されているのですね。あなたに最適な情報を提供できるよう、パーソナライズされたニュースと提案をお届けします。`);
+
+            // パーソナライズニュースは削除済み（対話スターターに置き換え）
+        }
+
+        function loadUserProfile() {
+            const saved = localStorage.getItem('cfo_profile_' + userId);
+            if (saved) {
+                userProfile = JSON.parse(saved);
+                updateProfileDisplay();
+            }
+        }
+
+        function updateProfileDisplay() {
+            const container = document.getElementById('userProfile');
+            if (!userProfile) return;
+
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div style="padding: 0.5rem; background: rgba(251, 191, 36, 0.1); border-radius: 6px; font-size: 0.875rem;">
+                        <strong style="color: var(--accent-gold);">目標:</strong> ${userProfile.financialGoal}
+                    </div>
+                    <div style="font-size: 0.8125rem; color: var(--text-secondary);">
+                        ${userProfile.ageGroup} | ${userProfile.occupation}<br>
+                        年収: ${userProfile.incomeLevel}
+                    </div>
+                </div>
+            `;
+        }
+
+        // パーソナライズニュース機能
+        async function loadPersonalizedNews() {
+            const newsContainer = document.getElementById('personalizedNews');
+            newsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">読み込み中...</p>';
+
+            try {
+                // 会話履歴からトピック分析
+                const topics = analyzeConversationTopics();
+
+                // プロフィールベースのキーワード生成
+                let keywords = [];
+                if (userProfile) {
+                    keywords.push(...userProfile.interests);
+                    if (userProfile.financialGoal.includes('節税')) keywords.push('節税', '税金');
+                    if (userProfile.financialGoal.includes('投資')) keywords.push('投資', '資産運用');
+                    if (userProfile.financialGoal.includes('副業') || userProfile.financialGoal.includes('起業')) keywords.push('副業', '起業', 'スタートアップ');
+                }
+
+                // 会話トピックをキーワードに追加
+                keywords.push(...topics);
+
+                // 重複を削除
+                keywords = [...new Set(keywords)];
+
+                // ダミーニュースデータ（実際はバックエンドから取得）
+                const dummyNews = [
+                    {
+                        title: '2025年版 富裕層が実践する節税テクニックTOP5',
+                        source: 'Forbes Japan',
+                        date: '2時間前',
+                        insight: `${userProfile?.financialGoal || 'あなたの目標'}に直結: iDeCo・NISA枠の最大活用で年間40万円の節税が可能です`
+                    },
+                    {
+                        title: '副業解禁時代の確定申告完全ガイド',
+                        source: '日経ビジネス',
+                        date: '5時間前',
+                        insight: '会社員の副業収入、20万円を超えたら要申告。節税のポイントを解説'
+                    },
+                    {
+                        title: '投資初心者が陥りがちな5つの罠',
+                        source: 'Bloomberg',
+                        date: '1日前',
+                        insight: `${userProfile?.ageGroup || '30代'}向け: インデックス投資で年利7%を目指す現実的な戦略`
+                    }
+                ];
+
+                if (keywords.length === 0) {
+                    // プロフィールなしの場合は一般的なニュース
+                    newsContainer.innerHTML = `
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            プロフィールを設定すると、あなた専用のニュースが表示されます
+                        </p>
+                        ${dummyNews.map(news => `
+                            <div class="news-card" onclick="explainNews('${news.title}')">
+                                <div class="news-title">${news.title}</div>
+                                <div class="news-meta">${news.source} • ${news.date}</div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    newsContainer.innerHTML = dummyNews.map(news => `
+                        <div class="news-card" onclick="explainNews('${news.title}')">
+                            <div class="news-title">${news.title}</div>
+                            <div class="news-meta">${news.source} • ${news.date}</div>
+                            <div class="news-insight">💡 ${news.insight}</div>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading news:', error);
+                newsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">ニュースの読み込みに失敗しました</p>';
+            }
+        }
+
+        function analyzeConversationTopics() {
+            const topics = [];
+            const keywords = ['節税', '投資', '副業', '起業', '不動産', 'FIRE', '独立', '転職', '資産', '運用'];
+
+            conversationHistory.forEach(item => {
+                keywords.forEach(keyword => {
+                    if (item.user.includes(keyword) || item.cfo.includes(keyword)) {
+                        topics.push(keyword);
+                    }
+                });
+            });
+
+            return [...new Set(topics)];
+        }
+
+        async function explainNews(newsTitle) {
+            const prompt = `
+あなたはパーソナルCFOです。以下のニュースについて、ユーザーにわかりやすく解説してください。
+
+【ニュース】
+${newsTitle}
+
+【ユーザープロフィール】
+${userProfile ? `
+- 年齢: ${userProfile.ageGroup}
+- 職業: ${userProfile.occupation}
+- 年収: ${userProfile.incomeLevel}
+- 目標: ${userProfile.financialGoal}
+- 興味: ${userProfile.interests.join('、')}
+` : '未設定'}
+
+【指示】
+1. このニュースの要点を3つにまとめる
+2. ユーザーにとってどう影響するか具体的に説明
+3. 今すぐできるアクションステップを提示
+4. 富裕層ならどう反応するか解説
+
+温かく、具体的に、実践的に回答してください。
+            `;
+
+            addMessage(`📰 「${newsTitle}」について詳しく教えてください`, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('http://127.0.0.1:8003/ask-enhanced', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: prompt,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                removeTypingIndicator();
+                addCFOMessage(data.answer);
+
+                conversationHistory.push({
+                    user: `📰 「${newsTitle}」について詳しく教えてください`,
+                    cfo: data.answer
+                });
+                saveConversationHistory();
+                updateThoughtHistory();
+
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+            }
+        }
+
+        // 法令検索機能
+        async function searchLaw() {
+            const input = document.getElementById('lawSearchInput');
+            const keyword = input.value.trim();
+            const resultsContainer = document.getElementById('lawResults');
+
+            if (!keyword) {
+                alert('検索キーワードを入力してください');
+                return;
+            }
+
+            resultsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">検索中...</p>';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8003/law-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        keyword: keyword,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('検索に失敗しました');
+
+                const data = await response.json();
+
+                if (data.laws && data.laws.length > 0) {
+                    resultsContainer.innerHTML = data.laws.map(law => `
+                        <div class="news-card" onclick="explainLaw('${law.law_id}', '${law.title}')">
+                            <div class="news-title">${law.title}</div>
+                            <div class="news-meta">${law.law_number}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">該当する法令が見つかりませんでした</p>';
+                }
+
+            } catch (error) {
+                console.error('Law search error:', error);
+                resultsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">検索エラーが発生しました</p>';
+            }
+        }
+
+        // 法令の解説を取得
+        async function explainLaw(lawId, lawTitle) {
+            const prompt = `
+あなたはパーソナルCFOです。以下の法令について、ユーザーにわかりやすく解説してください。
+
+【法令】
+${lawTitle}
+
+【ユーザープロフィール】
+${userProfile ? `
+- 年齢: ${userProfile.ageGroup}
+- 職業: ${userProfile.occupation}
+- 年収: ${userProfile.incomeLevel}
+- 目標: ${userProfile.financialGoal}
+` : '未設定'}
+
+【指示】
+1. この法令の目的と概要を簡潔に説明
+2. ユーザーの生活にどう関係するか具体的に解説
+3. 知っておくべき重要なポイント（控除、税率など）
+4. 富裕層がこの法令をどう活用しているか
+5. 今すぐ取るべきアクション
+
+温かく、具体的に、実践的に回答してください。
+            `;
+
+            addMessage(`⚖️ 「${lawTitle}」について教えてください`, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('http://127.0.0.1:8003/ask-enhanced', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: prompt,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                removeTypingIndicator();
+                addCFOMessage(data.answer);
+
+                conversationHistory.push({
+                    user: `⚖️ 「${lawTitle}」について教えてください`,
+                    cfo: data.answer
+                });
+                saveConversationHistory();
+                updateThoughtHistory();
+
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+            }
+        }
+
+        // Enterキーで法令検索
+        document.addEventListener('DOMContentLoaded', () => {
+            const lawSearchInput = document.getElementById('lawSearchInput');
+            if (lawSearchInput) {
+                lawSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchLaw();
+                    }
+                });
+            }
+        });
+
+        // 初期化時にチャートを作成
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                initTimelineChart();
+                updateThoughtHistory();
+            }, 500);
+        });
+    </script>
+
+    <!-- 対話型学習UI v2 -->
+    <script src="/static/conversation_ui_v2.js"></script>
+</body>
+</html>

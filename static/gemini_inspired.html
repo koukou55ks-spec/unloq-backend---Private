@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unloq - AI知識パートナー</title>
+    
+    <!-- PWA メタタグ -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- フォント -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;600;700&family=Google+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- アイコン -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-blue-hover: #1557b0;
+            --primary-blue-light: #e8f0fe;
+            --secondary-green: #34a853;
+            --secondary-yellow: #fbbc04;
+            --secondary-red: #ea4335;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --text-tertiary: #9aa0a6;
+            --surface-primary: #ffffff;
+            --surface-secondary: #f8f9fa;
+            --surface-tertiary: #e8eaed;
+            --border-light: #dadce0;
+            --border-medium: #c4c7c5;
+            --shadow-light: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            --shadow-medium: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+            --shadow-heavy: 0 2px 6px 2px rgba(60,64,67,.15), 0 8px 24px 4px rgba(60,64,67,.15);
+            --radius-small: 8px;
+            --radius-medium: 12px;
+            --radius-large: 16px;
+            --radius-xl: 24px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* ヘッダー */
+        .header {
+            background: var(--surface-primary);
+            border-bottom: 1px solid var(--border-light);
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+            border-radius: var(--radius-small);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-medium);
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-blue-hover);
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        
+        .btn-ghost:hover {
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+        }
+        
+        /* メインコンテナ */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* チャットコンテナ */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* ウェルカムセクション */
+        .welcome-section {
+            text-align: center;
+            padding: 60px 0;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .welcome-title {
+            font-size: 48px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .welcome-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 提案チップ */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 48px;
+        }
+        
+        .suggestion-chip {
+            background: var(--surface-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 12px 20px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .suggestion-chip:hover {
+            background: var(--primary-blue-light);
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        /* メッセージエリア */
+        .messages {
+            flex: 1;
+            padding: 24px 0;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        
+        .message {
+            margin-bottom: 32px;
+            animation: slideInUp 0.3s ease-out;
+        }
+        
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .message-assistant {
+            display: flex;
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 80%;
+            position: relative;
+        }
+        
+        .message-bubble {
+            padding: 16px 20px;
+            border-radius: var(--radius-large);
+            font-size: 16px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .message-user .message-bubble {
+            background: var(--primary-blue);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-assistant .message-bubble {
+            background: var(--surface-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        .message-user .message-meta {
+            justify-content: flex-end;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .message-action {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-small);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            transition: all 0.2s ease;
+        }
+        
+        .message-action:hover {
+            background: var(--surface-secondary);
+            color: var(--text-secondary);
+        }
+        
+        /* タイピングインジケーター */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 20px;
+            background: var(--surface-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-large);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-light);
+            max-width: 80%;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+            animation: typingPulse 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        /* 入力エリア */
+        .input-container {
+            background: var(--surface-primary);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-medium);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .input-container:focus-within {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1), var(--shadow-medium);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        
+        .input-field {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: transparent;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-tertiary);
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-button:hover {
+            background: var(--primary-blue-hover);
+            transform: scale(1.05);
+        }
+        
+        .send-button:disabled {
+            background: var(--text-tertiary);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* サイドパネル */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--surface-primary);
+            border-left: 1px solid var(--border-light);
+            box-shadow: var(--shadow-heavy);
+            transition: right 0.3s ease;
+            z-index: 200;
+            overflow-y: auto;
+        }
+        
+        .side-panel.open {
+            right: 0;
+        }
+        
+        .side-panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .side-panel-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .side-panel-content {
+            padding: 20px;
+        }
+        
+        /* 統計カード */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--surface-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-medium);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* アニメーション */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes typingPulse {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 16px;
+            }
+            
+            .welcome-title {
+                font-size: 36px;
+            }
+            
+            .welcome-subtitle {
+                font-size: 18px;
+            }
+            
+            .suggestions {
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 8px;
+            }
+            
+            .suggestion-chip {
+                flex-shrink: 0;
+            }
+            
+            .message-content {
+                max-width: 90%;
+            }
+            
+            .side-panel {
+                width: 100vw;
+                right: -100vw;
+            }
+        }
+        
+        /* ダークモード */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #e8eaed;
+                --text-secondary: #9aa0a6;
+                --text-tertiary: #5f6368;
+                --surface-primary: #202124;
+                --surface-secondary: #303134;
+                --surface-tertiary: #3c4043;
+                --border-light: #3c4043;
+                --border-medium: #5f6368;
+            }
+        }
+        
+        /* 高コントラストモード */
+        @media (prefers-contrast: high) {
+            :root {
+                --border-light: #000000;
+                --shadow-light: 0 2px 4px rgba(0,0,0,0.5);
+                --shadow-medium: 0 4px 8px rgba(0,0,0,0.5);
+            }
+        }
+        
+        /* 動きを減らす設定 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="sparkles" size="18"></i>
+                </div>
+                Unloq
+            </a>
+            
+            <div class="header-actions">
+                <button class="btn btn-ghost" onclick="toggleSidePanel()">
+                    <i data-lucide="bar-chart-3" size="16"></i>
+                    統計
+                </button>
+                <button class="btn btn-secondary">
+                    <i data-lucide="help-circle" size="16"></i>
+                    ヘルプ
+                </button>
+                <button class="btn btn-primary">
+                    <i data-lucide="user" size="16"></i>
+                    ログイン
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテナ -->
+    <main class="main-container">
+        <div class="chat-container">
+            <!-- ウェルカムセクション -->
+            <div class="welcome-section" id="welcome-section">
+                <h1 class="welcome-title">こんにちは</h1>
+                <p class="welcome-subtitle">何でもお聞きください。複雑な情報を分かりやすく、あなたの学習をサポートします。</p>
+                
+                <!-- 提案チップ -->
+                <div class="suggestions">
+                    <div class="suggestion-chip" onclick="sendSuggestion('効率的な学習方法を教えて')">
+                        📚 効率的な学習方法
+                    </div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('最新のAI技術について')">
+                        🤖 最新のAI技術
+                    </div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('データ分析の基本')">
+                        📊 データ分析の基本
+                    </div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('プログラミング入門')">
+                        💻 プログラミング入門
+                    </div>
+                </div>
+            </div>
+
+            <!-- メッセージエリア -->
+            <div class="messages" id="messages"></div>
+
+            <!-- 入力エリア -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="input-field" 
+                        id="message-input"
+                        placeholder="メッセージを入力..."
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="send-button" id="send-button" onclick="sendMessage()">
+                        <i data-lucide="send" size="18"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- サイドパネル -->
+    <div class="side-panel" id="side-panel">
+        <div class="side-panel-header">
+            <h2 class="side-panel-title">統計情報</h2>
+            <button class="btn btn-ghost" onclick="toggleSidePanel()">
+                <i data-lucide="x" size="16"></i>
+            </button>
+        </div>
+        <div class="side-panel-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="conversation-count">0</div>
+                    <div class="stat-label">会話数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="response-time">0ms</div>
+                    <div class="stat-label">平均応答時間</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="user-count">0</div>
+                    <div class="stat-label">総利用者数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">95%</div>
+                    <div class="stat-label">満足度</div>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 16px; font-size: 16px; font-weight: 600;">システム状況</h3>
+            <div id="system-status"></div>
+        </div>
+    </div>
+
+    <script>
+        // アイコン初期化
+        lucide.createIcons();
+        
+        // グローバル変数
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let conversationCount = 0;
+        let totalResponseTime = 0;
+        let isTyping = false;
+        
+        // 自動リサイズ
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+        
+        // キーボードイベント
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        // 提案送信
+        function sendSuggestion(text) {
+            document.getElementById('message-input').value = text;
+            sendMessage();
+        }
+        
+        // メッセージ送信
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            console.log('📨 質問送信:', message);
+            
+            // UI更新
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            hideWelcomeSection();
+            showTyping();
+            
+            const startTime = performance.now();
+            
+            try {
+                console.log('🔄 API呼び出し開始...');
+                
+                const response = await fetch('/ask-enhanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: message,
+                        user_id: userId
+                    })
+                });
+                
+                console.log('📡 レスポンス受信:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ データ解析完了:', data);
+                
+                hideTyping();
+                
+                const responseTime = performance.now() - startTime;
+                
+                if (data.answer) {
+                    addMessage(data.answer, 'assistant', responseTime, data.confidence_score);
+                    conversationCount++;
+                    totalResponseTime += responseTime;
+                    updateStats();
+                    console.log('🎉 回答表示完了');
+                } else {
+                    addMessage('申し訳ございません。回答を生成できませんでした。', 'assistant');
+                    console.error('❌ 回答データが空です:', data);
+                }
+            } catch (error) {
+                console.error('❌ エラー発生:', error);
+                hideTyping();
+                addMessage(`エラーが発生しました: ${error.message}`, 'assistant');
+            }
+        }
+        
+        // ウェルカムセクション非表示
+        function hideWelcomeSection() {
+            const welcomeSection = document.getElementById('welcome-section');
+            if (welcomeSection) {
+                welcomeSection.style.display = 'none';
+            }
+        }
+        
+        // メッセージ追加
+        function addMessage(content, sender, responseTime = null, confidence = null) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${sender}`;
+            
+            const isUser = sender === 'user';
+            const timestamp = new Date().toLocaleTimeString('ja-JP', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="message-bubble">${content}</div>
+                    <div class="message-meta">
+                        <span>${timestamp}</span>
+                        ${responseTime ? `<span>⚡ ${Math.round(responseTime)}ms</span>` : ''}
+                        ${confidence ? `<span>🎯 ${Math.round(confidence * 100)}%</span>` : ''}
+                    </div>
+                    ${!isUser ? `
+                        <div class="message-actions">
+                            <button class="message-action" onclick="copyMessage('${content.replace(/'/g, "\\'")}')">
+                                <i data-lucide="copy" size="14"></i>
+                            </button>
+                            <button class="message-action">
+                                <i data-lucide="thumbs-up" size="14"></i>
+                            </button>
+                            <button class="message-action">
+                                <i data-lucide="thumbs-down" size="14"></i>
+                            </button>
+                            <button class="message-action">
+                                <i data-lucide="share" size="14"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            lucide.createIcons();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // タイピング表示
+        function showTyping() {
+            if (isTyping) return;
+            isTyping = true;
+            
+            const messagesContainer = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message message-assistant';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                        <span style="color: var(--text-secondary); font-size: 14px;">考えています...</span>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // タイピング非表示
+        function hideTyping() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+                isTyping = false;
+            }
+        }
+        
+        // メッセージコピー
+        function copyMessage(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // 簡単な成功フィードバック
+                const button = event.target.closest('.message-action');
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i data-lucide="check" size="14"></i>';
+                lucide.createIcons();
+                setTimeout(() => {
+                    button.innerHTML = originalIcon;
+                    lucide.createIcons();
+                }, 1000);
+            });
+        }
+        
+        // サイドパネル切り替え
+        function toggleSidePanel() {
+            const sidePanel = document.getElementById('side-panel');
+            sidePanel.classList.toggle('open');
+            
+            if (sidePanel.classList.contains('open')) {
+                loadSystemStatus();
+            }
+        }
+        
+        // 統計更新
+        function updateStats() {
+            document.getElementById('conversation-count').textContent = conversationCount;
+            const avgResponseTime = conversationCount > 0 ? Math.round(totalResponseTime / conversationCount) : 0;
+            document.getElementById('response-time').textContent = avgResponseTime + 'ms';
+        }
+        
+        // システム状況読み込み
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/external-apis/status');
+                const data = await response.json();
+                const container = document.getElementById('system-status');
+                
+                const services = [
+                    { name: 'AI エンジン', status: data.gemini?.configured, icon: 'brain' },
+                    { name: 'データベース', status: data.e_gov_api?.configured, icon: 'database' },
+                    { name: '統計API', status: data.e_stat_api?.configured, icon: 'bar-chart' },
+                    { name: 'ニュース', status: data.x_api?.configured, icon: 'newspaper' }
+                ];
+                
+                container.innerHTML = services.map(service => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--surface-secondary); border-radius: var(--radius-small); margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="${service.icon}" size="16" style="color: var(--text-secondary);"></i>
+                            <span style="font-size: 14px; color: var(--text-primary);">${service.name}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: ${service.status ? 'var(--secondary-green)' : 'var(--secondary-yellow)'};"></div>
+                            <span style="font-size: 12px; color: var(--text-secondary);">${service.status ? '稼働中' : 'テスト'}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                lucide.createIcons();
+            } catch (error) {
+                console.error('システム状況読み込みエラー:', error);
+            }
+        }
+        
+        // 統計データ読み込み
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                document.getElementById('user-count').textContent = data.registered_users || 0;
+            } catch (error) {
+                console.error('統計読み込みエラー:', error);
+            }
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            
+            // 定期更新
+            setInterval(loadStats, 30000);
+        });
+        
+        // PWA機能
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered');
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceFlow - 究極のAI金融アドバイザー</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark: #1a1a2e;
+            --darker: #0f0f1e;
+            --light: #f8f9fa;
+            --purple: #667eea;
+            --pink: #f093fb;
+            --blue: #4facfe;
+            --cyan: #00f2fe;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--darker);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* グラスモーフィズム背景 */
+        .background {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: var(--darker);
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-gradient-1 {
+            background: var(--purple);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-gradient-2 {
+            background: var(--pink);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        .bg-gradient-3 {
+            background: var(--blue);
+            top: 50%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, -100px) scale(1.1); }
+            66% { transform: translate(-100px, 100px) scale(0.9); }
+        }
+
+        /* ヘッダー */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 15, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gradient {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-glass {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* メインコンテナ */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* チャットエリア */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-header {
+            padding: 2rem;
+            background: var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .chat-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-subtitle {
+            opacity: 0.95;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: 600px;
+            min-height: 400px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .message.user .message-avatar {
+            background: var(--secondary);
+        }
+
+        .message.bot .message-avatar {
+            background: var(--success);
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 75%;
+        }
+
+        .message-bubble {
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            line-height: 1.7;
+        }
+
+        .message.user .message-bubble {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            margin-left: auto;
+        }
+
+        .message.bot .message-bubble {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* 計算結果カード */
+        .calculation-result {
+            margin-top: 1rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+
+        .calculation-title {
+            font-weight: 700;
+            color: var(--blue);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .calculation-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .calculation-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .calculation-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--success);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 提案チップ */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .suggestion-chip {
+            padding: 0.5rem 1rem;
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: var(--purple);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .suggestion-chip:hover {
+            background: rgba(102, 126, 234, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* チャット入力 */
+        .chat-input {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--glass-border);
+            background: rgba(15, 15, 30, 0.5);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-textarea {
+            width: 100%;
+            min-height: 56px;
+            max-height: 120px;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            transition: all 0.3s;
+            background: var(--glass);
+            color: var(--text-primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-textarea:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat-textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-button {
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 56px;
+            height: 56px;
+            font-size: 1.25rem;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .sidebar-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            font-size: 1.25rem;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        /* フォーム */
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-input, .form-select {
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--purple);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* 統計グリッド */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: var(--success);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            display: block;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* ウェルカムメッセージ */
+        .welcome-message {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .welcome-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .quick-action {
+            padding: 1.5rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .quick-action:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--purple);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: var(--warning);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .quick-action-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* ローディング */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--glass-border);
+            border-top: 4px solid var(--purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 通知 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+
+            .chat-messages {
+                max-height: 500px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .chat-title {
+                font-size: 1.5rem;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .calculation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景グラデーション -->
+    <div class="background">
+        <div class="bg-gradient bg-gradient-1"></div>
+        <div class="bg-gradient bg-gradient-2"></div>
+        <div class="bg-gradient bg-gradient-3"></div>
+    </div>
+
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                FinanceFlow
+            </a>
+            <div class="nav-buttons">
+                <button class="btn btn-glass">
+                    <i class="fas fa-bell"></i>
+                    通知
+                </button>
+                <button class="btn btn-gradient">
+                    <i class="fas fa-user"></i>
+                    ログイン
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-container">
+        <!-- チャットエリア -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1 class="chat-title">あなた専属のAI金融アドバイザー</h1>
+                <p class="chat-subtitle">税金計算、資産運用、節税対策、退職プランまで - あらゆる金融の悩みを解決</p>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="welcome-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h2 class="welcome-title">ようこそ、FinanceFlowへ</h2>
+                    <p class="welcome-text">AIを活用した最先端の金融アドバイスで、あなたの資産形成をサポートします</p>
+
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="sendQuickMessage('年収500万円の所得税を計算してください')">
+                            <div class="quick-action-icon"><i class="fas fa-calculator"></i></div>
+                            <div class="quick-action-title">税金計算</div>
+                            <div class="quick-action-desc">所得税・住民税を自動計算</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('効果的な節税対策を教えてください')">
+                            <div class="quick-action-icon"><i class="fas fa-piggy-bank"></i></div>
+                            <div class="quick-action-title">節税対策</div>
+                            <div class="quick-action-desc">iDeCo・NISAなど最適化</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('30代からの資産運用プランを提案してください')">
+                            <div class="quick-action-icon"><i class="fas fa-chart-pie"></i></div>
+                            <div class="quick-action-title">資産運用</div>
+                            <div class="quick-action-desc">年齢別ポートフォリオ</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('退職金プランを作成してください')">
+                            <div class="quick-action-icon"><i class="fas fa-umbrella-beach"></i></div>
+                            <div class="quick-action-title">退職計画</div>
+                            <div class="quick-action-desc">安心の老後設計</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>AIが最適な回答を生成中...</div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea
+                            class="chat-textarea"
+                            id="messageInput"
+                            placeholder="金融に関する質問を入力してください... (Enterで送信)"
+                            rows="1"
+                            onkeydown="handleKeyDown(event)"
+                            oninput="autoResize(this)"
+                        ></textarea>
+                    </div>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <!-- プロフィールカード -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-circle"></i>
+                        プロフィール設定
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <form class="profile-form" id="profileForm">
+                        <div class="form-group">
+                            <label class="form-label">年齢</label>
+                            <input type="number" class="form-input" id="age" placeholder="30" min="18" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">年収（万円）</label>
+                            <input type="number" class="form-input" id="income" placeholder="500" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">貯蓄額（万円）</label>
+                            <input type="number" class="form-input" id="savings" placeholder="100" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">投資額（万円）</label>
+                            <input type="number" class="form-input" id="investments" placeholder="50" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">リスク許容度</label>
+                            <select class="form-select" id="riskTolerance">
+                                <option value="conservative">保守的</option>
+                                <option value="moderate" selected>中程度</option>
+                                <option value="aggressive">積極的</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-gradient" onclick="saveProfile()" style="width: 100%;">
+                            <i class="fas fa-save"></i>
+                            保存して分析
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 金融健全性スコア -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-heartbeat"></i>
+                        金融健全性スコア
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="font-size: 3rem; font-weight: 800; background: var(--success); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="healthScore">--</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-secondary);" id="healthGrade">評価待ち</div>
+                    </div>
+                    <div id="healthFactors" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            プロフィールを設定すると<br>スコアが表示されます
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 統計情報 -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        あなたの統計
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                            <span class="stat-value" id="queryCount">0</span>
+                            <span class="stat-label">相談回数</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                            <span class="stat-value" id="streak">0</span>
+                            <span class="stat-label">連続利用日数</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-piggy-bank"></i></div>
+                            <span class="stat-value" id="savedAmount">¥0</span>
+                            <span class="stat-label">推定節税額</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                            <span class="stat-value" id="achievements">0</span>
+                            <span class="stat-label">達成項目</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let queryCount = 0;
+        let currentProfile = null;
+
+        // テキストエリアの自動リサイズ
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // キーボードイベント
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // クイックメッセージ送信
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        // メッセージ送信
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // ウェルカムメッセージを非表示
+            const welcomeMessage = document.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+
+            // ユーザーメッセージを表示
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+
+            // ローディング表示
+            showLoading();
+
+            try {
+                const response = await fetch('/ask-enhanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: message,
+                        user_id: userId,
+                        profile: currentProfile
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayBotResponse(data);
+
+                // 統計更新
+                queryCount++;
+                updateQueryCount();
+
+            } catch (error) {
+                console.error('エラー:', error);
+                addMessage('申し訳ございません。エラーが発生しました。もう一度お試しください。', 'bot');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // メッセージ追加
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const avatar = sender === 'user' ? '👤' : '🤖';
+            const time = new Date().toLocaleTimeString('ja-JP', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ボットの回答を表示
+        function displayBotResponse(data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+
+            const time = new Date().toLocaleTimeString('ja-JP', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            let content = data.answer;
+
+            // 計算結果を表示
+            let calculationHtml = '';
+            if (data.tax_calculation) {
+                const calc = data.tax_calculation;
+                calculationHtml = `
+                    <div class="calculation-result">
+                        <div class="calculation-title">
+                            <i class="fas fa-calculator"></i>
+                            詳細計算結果
+                        </div>
+                        <div class="calculation-grid">
+                            <div class="calculation-item">
+                                <div class="calculation-label">総収入</div>
+                                <div class="calculation-value">¥${calc.gross_income?.toLocaleString() || '0'}</div>
+                            </div>
+                            <div class="calculation-item">
+                                <div class="calculation-label">所得税</div>
+                                <div class="calculation-value">¥${calc.income_tax?.toLocaleString() || '0'}</div>
+                            </div>
+                            <div class="calculation-item">
+                                <div class="calculation-label">住民税</div>
+                                <div class="calculation-value">¥${calc.resident_tax?.toLocaleString() || '0'}</div>
+                            </div>
+                            <div class="calculation-item">
+                                <div class="calculation-label">手取り</div>
+                                <div class="calculation-value">¥${calc.net_income?.toLocaleString() || '0'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 提案を表示
+            let suggestionsHtml = '';
+            if (data.suggestions && data.suggestions.length > 0) {
+                suggestionsHtml = '<div class="suggestions">';
+                data.suggestions.forEach(suggestion => {
+                    suggestionsHtml += `<span class="suggestion-chip" onclick="sendQuickMessage('${suggestion}')">${suggestion}</span>`;
+                });
+                suggestionsHtml += '</div>';
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        ${content}
+                        ${calculationHtml}
+                        ${suggestionsHtml}
+                    </div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // プロフィール保存
+        async function saveProfile() {
+            const profile = {
+                age: parseInt(document.getElementById('age').value) || null,
+                income: parseInt(document.getElementById('income').value) || null,
+                savings: parseInt(document.getElementById('savings').value) || null,
+                investments: parseInt(document.getElementById('investments').value) || null,
+                risk_tolerance: document.getElementById('riskTolerance').value
+            };
+
+            currentProfile = profile;
+
+            // 金融健全性スコアを計算
+            calculateHealthScore(profile);
+
+            showNotification('プロフィールを保存しました！', 'success');
+        }
+
+        // 金融健全性スコア計算
+        function calculateHealthScore(profile) {
+            let score = 0;
+            const factors = [];
+
+            // 収入
+            if (profile.income >= 500) {
+                score += 25;
+                factors.push('✅ 安定した収入');
+            } else if (profile.income >= 300) {
+                score += 20;
+                factors.push('⚠️ 中程度の収入');
+            } else {
+                factors.push('❌ 収入の改善が必要');
+            }
+
+            // 貯蓄率
+            if (profile.income && profile.savings) {
+                const savingsRate = profile.savings / profile.income;
+                if (savingsRate >= 0.2) {
+                    score += 25;
+                    factors.push('✅ 優秀な貯蓄率');
+                } else if (savingsRate >= 0.1) {
+                    score += 20;
+                    factors.push('⚠️ 良好な貯蓄率');
+                } else {
+                    factors.push('❌ 貯蓄率の改善が必要');
+                }
+            }
+
+            // 投資
+            if (profile.investments > 0) {
+                score += 25;
+                factors.push('✅ 投資を実践中');
+            } else {
+                factors.push('❌ 投資の開始を推奨');
+            }
+
+            // 年齢
+            if (profile.age < 40) {
+                score += 25;
+                factors.push('✅ 若年期の有利なスタート');
+            } else {
+                score += 15;
+                factors.push('⚠️ 退職準備の加速が必要');
+            }
+
+            const grade = score >= 80 ? '優秀' :
+                         score >= 60 ? '良好' :
+                         score >= 40 ? '普通' : '要改善';
+
+            document.getElementById('healthScore').textContent = score;
+            document.getElementById('healthGrade').textContent = grade;
+
+            const factorsHtml = factors.map(f =>
+                `<div style="padding: 0.75rem; background: rgba(102, 126, 234, 0.05); border-radius: 8px; font-size: 0.875rem;">${f}</div>`
+            ).join('');
+            document.getElementById('healthFactors').innerHTML = factorsHtml;
+        }
+
+        // 統計更新
+        function updateQueryCount() {
+            document.getElementById('queryCount').textContent = queryCount;
+        }
+
+        // 通知表示
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // ローディング表示
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('sendButton').disabled = true;
+        }
+
+        // ローディング非表示
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('sendButton').disabled = false;
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // ストリーク計算（デモ）
+            document.getElementById('streak').textContent = Math.floor(Math.random() * 7) + 1;
+
+            // 達成項目（デモ）
+            document.getElementById('achievements').textContent = Math.floor(Math.random() * 5);
+        });
+    </script>
+</body>
+</html>

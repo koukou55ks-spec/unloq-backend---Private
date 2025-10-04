@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unloq - 知識を解き放つAIパートナー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #18181b, #52525b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .shadow-glow {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+        }
+        .shadow-subtle {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #f4f4f5;
+            transition: box-shadow 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .card-elevated {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .btn:focus {
+            ring: 2px;
+            ring-offset: 2px;
+            ring-offset-color: white;
+        }
+        .btn-primary {
+            background: #18181b;
+            color: white;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .btn-primary:hover {
+            background: #27272a;
+        }
+        .btn-primary:focus {
+            ring-color: #3f3f46;
+        }
+        .btn-secondary {
+            background: white;
+            color: #18181b;
+            border: 1px solid #e4e4e7;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .btn-secondary:hover {
+            background: #fafafa;
+        }
+        .btn-secondary:focus {
+            ring-color: #71717a;
+        }
+        .btn-ghost {
+            color: #3f3f46;
+        }
+        .btn-ghost:hover {
+            background: #fafafa;
+        }
+        .btn-ghost:focus {
+            ring-color: #71717a;
+        }
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .btn-md {
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+        }
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+        .input {
+            display: block;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid #e4e4e7;
+            background: white;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        .input::placeholder {
+            color: #a1a1aa;
+        }
+        .input:focus {
+            border-color: #52525b;
+            ring: 1px;
+            ring-color: #52525b;
+        }
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #27272a;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen text-primary-900">
+    <!-- ヘッダー -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-primary-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="w-8 h-8 bg-primary-900 rounded-lg flex items-center justify-center">
+                            <i data-lucide="lock" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center border border-primary-200">
+                            <i data-lucide="unlock" class="w-2 h-2 text-primary-900"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-xl font-bold text-primary-900">Unloq</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="btn btn-ghost btn-sm">
+                        ヘルプ
+                    </button>
+                    <button class="btn btn-primary btn-sm">
+                        始める
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- チャットエリア -->
+            <div class="lg:col-span-3">
+                <div class="card-elevated h-[700px] flex flex-col overflow-hidden">
+                    <!-- チャットヘッダー -->
+                    <div class="px-6 py-4 border-b border-primary-100 bg-gradient-to-r from-primary-50 to-white">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-primary-900">Unloq AI</h2>
+                                <p class="text-sm text-primary-600">あなたの知識パートナー</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- メッセージエリア -->
+                    <div class="flex-1 overflow-y-auto p-8" id="messages-container">
+                        <div class="text-center mb-12">
+                            <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-primary-900 to-primary-700 rounded-2xl flex items-center justify-center animate-float">
+                                <i data-lucide="bot" class="w-10 h-10 text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-primary-900 mb-3">何でもお聞きください</h3>
+                            <p class="text-primary-600 max-w-md mx-auto leading-relaxed">
+                                複雑な情報を分かりやすく、学習をサポートします。どのようなことでもお気軽にご質問ください。
+                            </p>
+                        </div>
+
+                        <!-- クイックアクション -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quick-actions">
+                            <div class="group p-6 text-left rounded-2xl border border-primary-100 hover:border-primary-200 hover:shadow-md transition-all duration-200 cursor-pointer bg-white" onclick="sendQuickAction('複雑な情報を分かりやすく説明して')">
+                                <div class="w-12 h-12 rounded-xl bg-primary-900 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                    <i data-lucide="search" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <h4 class="font-semibold text-primary-900 mb-2">情報を探索</h4>
+                                <p class="text-sm text-primary-600 leading-relaxed">複雑な情報を分かりやすく整理</p>
+                            </div>
+
+                            <div class="group p-6 text-left rounded-2xl border border-primary-100 hover:border-primary-200 hover:shadow-md transition-all duration-200 cursor-pointer bg-white" onclick="sendQuickAction('この分野について詳しく教えて')">
+                                <div class="w-12 h-12 rounded-xl bg-primary-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                    <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <h4 class="font-semibold text-primary-900 mb-2">知識を深める</h4>
+                                <p class="text-sm text-primary-600 leading-relaxed">AI が学習をサポート</p>
+                            </div>
+
+                            <div class="group p-6 text-left rounded-2xl border border-primary-100 hover:border-primary-200 hover:shadow-md transition-all duration-200 cursor-pointer bg-white" onclick="sendQuickAction('効率的な学習方法を教えて')">
+                                <div class="w-12 h-12 rounded-xl bg-primary-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                    <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <h4 class="font-semibold text-primary-900 mb-2">学習を加速</h4>
+                                <p class="text-sm text-primary-600 leading-relaxed">効率的な学習方法を提案</p>
+                            </div>
+
+                            <div class="group p-6 text-left rounded-2xl border border-primary-100 hover:border-primary-200 hover:shadow-md transition-all duration-200 cursor-pointer bg-white" onclick="sendQuickAction('このデータから何が分かる？')">
+                                <div class="w-12 h-12 rounded-xl bg-primary-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+                                    <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <h4 class="font-semibold text-primary-900 mb-2">インサイト発見</h4>
+                                <p class="text-sm text-primary-600 leading-relaxed">データから洞察を抽出</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 入力エリア -->
+                    <div class="p-6 border-t border-primary-100 bg-primary-25">
+                        <div class="relative">
+                            <textarea
+                                id="message-input"
+                                placeholder="何でもお聞きください..."
+                                class="w-full px-4 py-4 pr-12 border border-primary-200 rounded-2xl resize-none focus:ring-2 focus:ring-primary-600 focus:border-transparent bg-white shadow-sm transition-all duration-200"
+                                rows="1"
+                                style="min-height: 56px; max-height: 120px;"
+                                onkeypress="handleKeyPress(event)"
+                            ></textarea>
+                            <button 
+                                id="send-button"
+                                onclick="sendMessage()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-primary-900 text-white rounded-xl flex items-center justify-center hover:bg-primary-800 transition-colors duration-200"
+                            >
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-primary-500 mt-2 text-center">
+                            Enterで送信 • Shift+Enterで改行
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- サイドバー -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- 設定 -->
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center">
+                            <i data-lucide="settings" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-primary-900">設定</h3>
+                            <p class="text-sm text-primary-600">パーソナライズのための情報</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="label">年齢</label>
+                                <input type="number" placeholder="30" class="input px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="label">年収（万円）</label>
+                                <input type="number" placeholder="500" class="input px-3 py-2">
+                            </div>
+                        </div>
+                        <button class="w-full btn btn-primary btn-md">
+                            <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                            保存
+                        </button>
+                    </div>
+                </div>
+
+                <!-- アクティビティ -->
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center">
+                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-primary-900">アクティビティ</h3>
+                            <p class="text-sm text-primary-600">システム利用状況</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-primary-50 rounded-xl border border-primary-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-primary-700"></i>
+                                <span class="text-2xl font-bold text-primary-900" id="conversation-count">0</span>
+                            </div>
+                            <p class="text-sm font-medium text-primary-700">会話数</p>
+                        </div>
+                        <div class="p-4 bg-primary-50 rounded-xl border border-primary-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <i data-lucide="users" class="w-5 h-5 text-primary-600"></i>
+                                <span class="text-2xl font-bold text-primary-900" id="user-count">0</span>
+                            </div>
+                            <p class="text-sm font-medium text-primary-700">利用者</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- システム状況 -->
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center">
+                            <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-primary-900">システム状況</h3>
+                            <p class="text-sm text-primary-600">サービス稼働状態</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3" id="system-status">
+                        <!-- システム状況は動的に読み込み -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 機能紹介セクション -->
+        <section class="mt-20">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center px-4 py-2 bg-primary-50 rounded-full text-sm font-medium text-primary-800 mb-6">
+                    <i data-lucide="sparkles" class="w-4 h-4 mr-2"></i>
+                    知識を解き放つ
+                </div>
+                
+                <h2 class="text-4xl font-bold text-primary-900 mb-6">
+                    学習の新しい
+                    <span class="text-gradient">体験</span>
+                </h2>
+                <p class="text-lg text-primary-600 max-w-3xl mx-auto leading-relaxed">
+                    複雑な情報を直感的に理解し、あなたの知識を次のレベルへ。
+                    AIが個人に最適化された学習体験を提供します。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8 bg-white border border-primary-100 rounded-2xl hover:border-primary-200 transition-colors duration-300">
+                        <div class="w-12 h-12 bg-primary-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary-900 mb-3">AI駆動の理解</h3>
+                        <p class="text-primary-600 leading-relaxed">複雑な概念を直感的に理解できるよう、AIが最適な説明を生成します</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8 bg-white border border-primary-100 rounded-2xl hover:border-primary-200 transition-colors duration-300">
+                        <div class="w-12 h-12 bg-primary-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="shield" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary-900 mb-3">プライバシー重視</h3>
+                        <p class="text-primary-600 leading-relaxed">あなたの学習データは安全に保護され、個人のプライバシーを最優先します</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8 bg-white border border-primary-100 rounded-2xl hover:border-primary-200 transition-colors duration-300">
+                        <div class="w-12 h-12 bg-primary-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary-900 mb-3">パーソナライズ</h3>
+                        <p class="text-primary-600 leading-relaxed">あなたの学習スタイルと興味に合わせて、カスタマイズされた体験を提供</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8 bg-white border border-primary-100 rounded-2xl hover:border-primary-200 transition-colors duration-300">
+                        <div class="w-12 h-12 bg-primary-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary-900 mb-3">進歩の可視化</h3>
+                        <p class="text-primary-600 leading-relaxed">学習の進捗と理解度を視覚的に追跡し、成長を実感できます</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA セクション -->
+            <div class="text-center bg-primary-900 rounded-3xl p-12 text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary-900 to-primary-800 opacity-90"></div>
+                <div class="relative z-10">
+                    <h3 class="text-3xl font-bold mb-4">
+                        今すぐ始めましょう
+                    </h3>
+                    <p class="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
+                        あなたの学習と成長をサポートする、新しいAIパートナーとの旅を始めませんか？
+                    </p>
+                    <button class="inline-flex items-center px-8 py-4 bg-white text-primary-900 rounded-xl font-semibold hover:bg-primary-50 transition-colors duration-200 shadow-lg">
+                        無料で始める
+                        <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                    </button>
+                </div>
+                
+                <!-- 装飾的な背景要素 -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Lucide アイコンの初期化
+        lucide.createIcons();
+        
+        // ユーザーID生成
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let conversationCount = 0;
+
+        // メッセージ送信
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // UI更新
+            addMessage(message, 'user');
+            input.value = '';
+            showTyping();
+            
+            try {
+                const response = await fetch('/ask-enhanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: message,
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                hideTyping();
+                
+                if (response.ok) {
+                    addMessage(data.answer, 'bot', data.confidence_score);
+                    conversationCount++;
+                    updateStats();
+                } else {
+                    addMessage('申し訳ございません。エラーが発生しました。', 'bot');
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage('ネットワークエラーが発生しました。', 'bot');
+            }
+        }
+
+        // クイックアクション送信
+        function sendQuickAction(message) {
+            document.getElementById('message-input').value = message;
+            sendMessage();
+        }
+
+        // メッセージ追加
+        function addMessage(content, sender, confidence = null) {
+            const container = document.getElementById('messages-container');
+            const quickActions = document.getElementById('quick-actions');
+            
+            // 初回メッセージの場合、クイックアクションを非表示
+            if (conversationCount === 0 && sender === 'user') {
+                quickActions.style.display = 'none';
+                container.querySelector('.text-center').style.display = 'none';
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex gap-4 mb-6 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            const isUser = sender === 'user';
+            const avatarClass = isUser ? 'bg-primary-600' : 'bg-primary-900';
+            const messageClass = isUser ? 'bg-primary-900 text-white rounded-br-md' : 'bg-primary-50 text-primary-900 rounded-bl-md border border-primary-100';
+            const iconName = isUser ? 'user' : 'bot';
+            
+            messageDiv.innerHTML = `
+                ${!isUser ? `<div class="w-8 h-8 rounded-xl ${avatarClass} flex items-center justify-center flex-shrink-0 mt-1">
+                    <i data-lucide="${iconName}" class="w-4 h-4 text-white"></i>
+                </div>` : ''}
+                <div class="max-w-[80%] ${isUser ? 'order-first' : ''}">
+                    <div class="px-4 py-3 rounded-2xl ${messageClass}">
+                        <p class="whitespace-pre-wrap leading-relaxed">${content}</p>
+                        ${confidence ? `<div class="mt-3 flex items-center space-x-2">
+                            <div class="flex-1 bg-primary-100 rounded-full h-1">
+                                <div class="bg-primary-600 h-1 rounded-full transition-all duration-300" style="width: ${confidence * 100}%"></div>
+                            </div>
+                            <span class="text-xs text-primary-600">${(confidence * 100).toFixed(0)}%</span>
+                        </div>` : ''}
+                    </div>
+                    <div class="mt-2 text-xs text-primary-400">
+                        ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                </div>
+                ${isUser ? `<div class="w-8 h-8 rounded-xl ${avatarClass} flex items-center justify-center flex-shrink-0 mt-1">
+                    <i data-lucide="${iconName}" class="w-4 h-4 text-white"></i>
+                </div>` : ''}
+            `;
+            
+            container.appendChild(messageDiv);
+            lucide.createIcons();
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // タイピング表示
+        function showTyping() {
+            const container = document.getElementById('messages-container');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex gap-4 mb-6';
+            typingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-primary-900 flex items-center justify-center">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-primary-50 border border-primary-100 px-4 py-3 rounded-2xl rounded-bl-md">
+                    <div class="flex items-center gap-3">
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                        <span class="text-primary-700">考えています...</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            lucide.createIcons();
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // タイピング非表示
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        // キー押下処理
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 統計更新
+        function updateStats() {
+            document.getElementById('conversation-count').textContent = conversationCount;
+        }
+
+        // 統計データ読み込み
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                document.getElementById('user-count').textContent = data.registered_users || 0;
+            } catch (error) {
+                console.error('統計読み込みエラー:', error);
+            }
+        }
+
+        // システム状況読み込み
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/external-apis/status');
+                const data = await response.json();
+                const container = document.getElementById('system-status');
+                
+                const services = [
+                    { name: 'AI エンジン', status: data.gemini?.configured },
+                    { name: 'データベース', status: data.e_gov_api?.configured },
+                    { name: '統計API', status: data.e_stat_api?.configured },
+                    { name: 'ニュース', status: data.x_api?.configured }
+                ];
+                
+                container.innerHTML = services.map(service => `
+                    <div class="flex items-center justify-between p-3 bg-primary-50 rounded-xl border border-primary-100">
+                        <span class="text-sm font-medium text-primary-800">${service.name}</span>
+                        <div class="flex items-center gap-2">
+                            ${service.status ? `
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <i data-lucide="wifi" class="w-4 h-4 text-green-600"></i>
+                                <span class="text-xs text-green-700 font-medium">稼働中</span>
+                            ` : `
+                                <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                <i data-lucide="wifi-off" class="w-4 h-4 text-amber-600"></i>
+                                <span class="text-xs text-amber-700 font-medium">テスト</span>
+                            `}
+                        </div>
+                    </div>
+                `).join('');
+                
+                lucide.createIcons();
+            } catch (error) {
+                console.error('システム状況読み込みエラー:', error);
+            }
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadSystemStatus();
+            
+            // 定期更新
+            setInterval(loadStats, 30000);
+            setInterval(loadSystemStatus, 60000);
+        });
+    </script>
+</body>
+</html>

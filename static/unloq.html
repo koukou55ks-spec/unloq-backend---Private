@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unloq - Your AI Financial Advisor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #737373;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 0 40px rgba(16, 185, 129, 0.15);
+            --gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 背景のグラデーションエフェクト */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-10px, -10px) rotate(1deg); }
+            66% { transform: translate(10px, -5px) rotate(-1deg); }
+        }
+
+        /* メインレイアウト */
+        .main-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* 新規チャットボタン */
+        .new-chat-btn {
+            margin: 16px;
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .new-chat-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        /* チャット履歴 */
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .chat-history-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .chat-item {
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            transition: width 0.3s;
+        }
+
+        .chat-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .chat-item:hover::before {
+            width: 100%;
+        }
+
+        .chat-item-icon {
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        .chat-item-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        /* ヘッダー */
+        .header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(13, 13, 13, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: var(--accent);
+            color: var(--text-primary);
+            border-color: var(--accent);
+        }
+
+        /* チャットエリア */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* ウェルカムスクリーン */
+        .welcome-screen {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+        }
+
+        /* サジェストカード */
+        .suggestion-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .suggestion-card {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .suggestion-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .suggestion-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+        }
+
+        .suggestion-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .suggestion-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .suggestion-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            line-height: 1.4;
+            position: relative;
+        }
+
+        /* メッセージ */
+        .message {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            animation: messageSlide 0.4s ease;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--gradient);
+        }
+
+        .message.ai .message-avatar {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-role {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .message-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .message-text p {
+            margin-bottom: 12px;
+        }
+
+        .message-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 入力エリア */
+        .input-area {
+            padding: 20px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 4px;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 15px;
+            padding: 12px 16px;
+            resize: none;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 4px;
+            padding-right: 4px;
+        }
+
+        .input-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .input-btn:hover {
+            background: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .send-btn {
+            background: var(--gradient);
+            color: var(--text-primary);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* タイピングインジケーター */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 0;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .suggestion-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* スクロールバー */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* アニメーション効果 */
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ソースカード */
+        .sources-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .sources-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .source-item:last-child {
+            border-bottom: none;
+        }
+
+        .source-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .source-info {
+            flex: 1;
+        }
+
+        .source-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .source-url {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- サイドバー -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">
+                    <div class="logo-icon">💰</div>
+                    <span>Unloq</span>
+                </a>
+            </div>
+
+            <button class="new-chat-btn" onclick="newChat()">
+                <i class="fas fa-plus"></i>
+                新しいチャット
+            </button>
+
+            <div class="chat-history">
+                <div class="chat-history-title">最近のチャット</div>
+                <div id="chatHistoryList"></div>
+            </div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">Personal CFO Assistant</div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="header-btn" onclick="shareChat()">
+                        <i class="fas fa-share"></i>
+                    </button>
+                    <button class="header-btn" onclick="openSettings()">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-area" id="chatArea">
+                <div class="chat-container">
+                    <!-- ウェルカムスクリーン -->
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <div class="welcome-logo">💰</div>
+                        <h1 class="welcome-title">Unloq</h1>
+                        <p class="welcome-subtitle">あなた専属のCFOがお金の悩みを解決します</p>
+
+                        <div class="suggestion-cards">
+                            <div class="suggestion-card" onclick="askQuestion('2024年の新NISA制度について詳しく教えて')">
+                                <div class="suggestion-icon">📈</div>
+                                <div class="suggestion-title">新NISA完全攻略</div>
+                                <div class="suggestion-desc">年間360万円の非課税枠を最大限活用する方法</div>
+                            </div>
+                            <div class="suggestion-card" onclick="askQuestion('フリーランスの節税対策を教えて')">
+                                <div class="suggestion-icon">💼</div>
+                                <div class="suggestion-title">フリーランス節税術</div>
+                                <div class="suggestion-desc">個人事業主が使える全ての控除と経費計上テクニック</div>
+                            </div>
+                            <div class="suggestion-card" onclick="askQuestion('住宅ローン控除の改正について')">
+                                <div class="suggestion-icon">🏠</div>
+                                <div class="suggestion-title">住宅ローン控除2024</div>
+                                <div class="suggestion-desc">改正後の控除額計算と最適な借入戦略</div>
+                            </div>
+                            <div class="suggestion-card" onclick="askQuestion('インボイス制度の対応方法')">
+                                <div class="suggestion-icon">📋</div>
+                                <div class="suggestion-title">インボイス実践ガイド</div>
+                                <div class="suggestion-desc">登録判断から実務対応まで完全解説</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- チャットメッセージ -->
+                    <div id="chatMessages"></div>
+                </div>
+            </div>
+
+            <!-- 入力エリア -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea
+                            class="chat-input"
+                            id="chatInput"
+                            placeholder="質問を入力してください..."
+                            rows="1"
+                            onkeydown="handleKeyDown(event)"
+                            oninput="adjustTextareaHeight(this)"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button class="input-btn" onclick="attachFile()">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="input-btn send-btn" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let currentChatId = null;
+        let isTyping = false;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChatHistory();
+            adjustTextareaHeight(document.getElementById('chatInput'));
+        });
+
+        // 新しいチャット
+        function newChat() {
+            currentChatId = 'chat_' + Date.now();
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('welcomeScreen').style.display = 'block';
+            document.getElementById('chatInput').focus();
+        }
+
+        // サイドバーの開閉
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // チャット履歴の読み込み
+        function loadChatHistory() {
+            const saved = localStorage.getItem('unloq_chat_history');
+            if (saved) {
+                chatHistory = JSON.parse(saved);
+                displayChatHistory();
+            }
+        }
+
+        // チャット履歴の表示
+        function displayChatHistory() {
+            const list = document.getElementById('chatHistoryList');
+            list.innerHTML = chatHistory.slice(0, 10).map(chat => `
+                <div class="chat-item" onclick="loadChat('${chat.id}')">
+                    <i class="fas fa-comment chat-item-icon"></i>
+                    <span class="chat-item-text">${chat.title}</span>
+                </div>
+            `).join('');
+        }
+
+        // 質問をする
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        // メッセージ送信
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // ウェルカムスクリーンを非表示
+            document.getElementById('welcomeScreen').style.display = 'none';
+
+            // ユーザーメッセージを追加
+            addMessage('user', message);
+
+            // 入力をクリア
+            input.value = '';
+            adjustTextareaHeight(input);
+
+            // タイピングインジケーターを表示
+            showTypingIndicator();
+
+            try {
+                // APIコール
+                const response = await fetch('http://127.0.0.1:8003/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: message })
+                });
+
+                const data = await response.json();
+
+                // タイピングインジケーターを削除
+                hideTypingIndicator();
+
+                // AIメッセージを追加
+                addMessage('ai', data.response, data.sources);
+
+                // チャット履歴を保存
+                saveChatHistory(message);
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('ai', 'エラーが発生しました。もう一度お試しください。');
+            }
+        }
+
+        // メッセージを追加
+        function addMessage(role, text, sources = null) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const avatarIcon = role === 'user' ? '👤' : '🤖';
+            const roleLabel = role === 'user' ? 'You' : 'Unloq';
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatarIcon}</div>
+                <div class="message-content">
+                    <div class="message-role">${roleLabel}</div>
+                    <div class="message-text">${formatMessage(text)}</div>
+                    ${sources ? formatSources(sources) : ''}
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // メッセージのフォーマット
+        function formatMessage(text) {
+            // マークダウンの基本的な変換
+            return text
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>');
+        }
+
+        // ソースのフォーマット
+        function formatSources(sources) {
+            if (!sources || sources.length === 0) return '';
+
+            return `
+                <div class="sources-section">
+                    <div class="sources-title">参照元</div>
+                    ${sources.map(source => `
+                        <div class="source-item">
+                            <div class="source-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="source-info">
+                                <div class="source-name">${source.title}</div>
+                                <div class="source-url">${source.url}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // タイピングインジケーター表示
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const indicator = document.createElement('div');
+            indicator.className = 'message ai';
+            indicator.id = 'typingIndicator';
+            indicator.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-role">Unloq</div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(indicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // タイピングインジケーター非表示
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // テキストエリアの高さ調整
+        function adjustTextareaHeight(element) {
+            element.style.height = 'auto';
+            element.style.height = Math.min(element.scrollHeight, 120) + 'px';
+        }
+
+        // キーボードイベント処理
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // チャット履歴の保存
+        function saveChatHistory(message) {
+            if (!currentChatId) {
+                currentChatId = 'chat_' + Date.now();
+            }
+
+            const existingChat = chatHistory.find(c => c.id === currentChatId);
+
+            if (existingChat) {
+                existingChat.lastMessage = message;
+                existingChat.updatedAt = new Date().toISOString();
+            } else {
+                chatHistory.unshift({
+                    id: currentChatId,
+                    title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+                    lastMessage: message,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+            }
+
+            localStorage.setItem('unloq_chat_history', JSON.stringify(chatHistory));
+            displayChatHistory();
+        }
+
+        // チャットの読み込み
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            // ここでチャットの履歴を読み込む処理を実装
+            document.getElementById('welcomeScreen').style.display = 'none';
+        }
+
+        // その他の機能
+        function shareChat() {
+            alert('共有リンクを作成しました');
+        }
+
+        function openSettings() {
+            alert('設定画面を開きます');
+        }
+
+        function attachFile() {
+            alert('ファイルを添付します');
+        }
+    </script>
+</body>
+</html>

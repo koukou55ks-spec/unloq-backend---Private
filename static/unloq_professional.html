@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unloq - 知識を解き放つAIパートナー</title>
+    
+    <!-- PWA メタタグ -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#18181b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Unloq">
+    <meta name="msapplication-TileColor" content="#18181b">
+    <meta name="msapplication-config" content="/static/browserconfig.xml">
+    
+    <!-- アイコン -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
+    <link rel="mask-icon" href="/static/icons/safari-pinned-tab.svg" color="#18181b">
+    
+    <!-- プリロード -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- 外部リソース -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                        },
+                        accent: {
+                            blue: '#3b82f6',
+                            green: '#10b981',
+                            purple: '#8b5cf6',
+                            orange: '#f59e0b',
+                            red: '#ef4444'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'typing': 'typing 1.5s infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideDown: {
+                            '0%': { opacity: '0', transform: 'translateY(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)' },
+                            '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.5)' }
+                        },
+                        typing: {
+                            '0%, 60%': { opacity: '1' },
+                            '30%': { opacity: '0.5' },
+                            '90%': { opacity: '0.8' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #fafafa 0%, #f4f4f5 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-premium {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f4f4f5;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-premium {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(24, 24, 27, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px 0 rgba(24, 24, 27, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #18181b;
+            border: 1px solid #e4e4e7;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: #fafafa;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+        }
+        
+        .input-premium {
+            background: white;
+            border: 2px solid #f4f4f5;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+        
+        .input-premium:focus {
+            border-color: #52525b;
+            box-shadow: 0 0 0 3px rgba(82, 82, 91, 0.1);
+        }
+        
+        .message-bubble {
+            border-radius: 18px;
+            padding: 12px 16px;
+            max-width: 85%;
+            word-wrap: break-word;
+            position: relative;
+        }
+        
+        .message-user {
+            background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+        }
+        
+        .message-bot {
+            background: #f8fafc;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 6px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+        }
+        
+        .sidebar-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #f4f4f5;
+        }
+        
+        .quick-action-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quick-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .quick-action-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .quick-action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: #e2e8f0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #10b981;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .chat-container {
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            scroll-behavior: smooth;
+        }
+        
+        .chat-input-container {
+            padding: 20px 24px;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+        }
+        
+        .floating-action-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+        
+        .floating-action-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px -5px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* スクロールバーのカスタマイズ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 120px);
+                border-radius: 12px;
+            }
+            
+            .sidebar-section {
+                padding: 16px;
+            }
+            
+            .quick-action-card {
+                padding: 16px;
+            }
+            
+            .feature-card {
+                padding: 24px;
+            }
+        }
+        
+        /* パフォーマンス最適化 */
+        .will-change-transform {
+            will-change: transform;
+        }
+        
+        .will-change-opacity {
+            will-change: opacity;
+        }
+        
+        .gpu-accelerated {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        
+        /* 低速接続対応 */
+        .slow-connection .animate-bounce-subtle,
+        .slow-connection .animate-pulse-glow,
+        .slow-connection .animate-typing {
+            animation: none;
+        }
+        
+        .slow-connection .card-premium:hover {
+            transform: none;
+        }
+        
+        /* オフライン表示 */
+        .offline::before {
+            content: 'オフライン';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #f59e0b;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-weight: 600;
+            z-index: 1000;
+        }
+        
+        .offline .chat-input-container {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        /* 印刷対応 */
+        @media print {
+            .floating-action-button,
+            .notification,
+            #install-button,
+            .chat-input-container {
+                display: none !important;
+            }
+            
+            .chat-container {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            
+            .message-bubble {
+                break-inside: avoid;
+            }
+        }
+        
+        /* 高コントラストモード */
+        @media (prefers-contrast: high) {
+            .card-premium {
+                border: 2px solid #000;
+            }
+            
+            .btn-primary {
+                background: #000;
+                border: 2px solid #000;
+            }
+            
+            .btn-secondary {
+                background: #fff;
+                border: 2px solid #000;
+                color: #000;
+            }
+        }
+        
+        /* 動きを減らす設定 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            .animate-bounce-subtle,
+            .animate-pulse-glow,
+            .animate-typing {
+                animation: none;
+            }
+        }
+        
+        /* ダークモード対応 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                color: #f1f5f9;
+            }
+            
+            .card-premium {
+                background: #1e293b;
+                border-color: #334155;
+            }
+            
+            .message-bot {
+                background: #334155;
+                color: #f1f5f9;
+                border-color: #475569;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 通知システム -->
+    <div id="notification" class="notification">
+        <div class="flex items-center gap-3">
+            <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+            <span id="notification-text">メッセージが送信されました</span>
+        </div>
+    </div>
+
+    <!-- ローディングオーバーレイ -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 flex flex-col items-center gap-4">
+            <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+            <p class="text-primary-700 font-medium">AIが回答を生成中...</p>
+        </div>
+    </div>
+
+    <!-- ヘッダー -->
+    <header class="sticky top-0 z-40 glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3 animate-fade-in">
+                    <div class="relative">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary-900 to-primary-700 rounded-xl flex items-center justify-center shadow-lg">
+                            <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center border-2 border-primary-200 animate-bounce-subtle">
+                            <i data-lucide="unlock" class="w-2.5 h-2.5 text-primary-900"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-primary-900">Unloq</h1>
+                        <p class="text-xs text-primary-600 -mt-1">知識を解き放つ</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3 animate-fade-in">
+                    <button class="btn-premium btn-secondary px-4 py-2 text-sm">
+                        <i data-lucide="help-circle" class="w-4 h-4 mr-2"></i>
+                        ヘルプ
+                    </button>
+                    <button class="btn-premium btn-primary px-4 py-2 text-sm">
+                        <i data-lucide="sparkles" class="w-4 h-4 mr-2"></i>
+                        始める
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- チャットエリア -->
+            <div class="lg:col-span-3 animate-slide-up">
+                <div class="chat-container">
+                    <!-- チャットヘッダー -->
+                    <div class="chat-header">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-accent-blue to-accent-purple rounded-xl flex items-center justify-center shadow-lg animate-pulse-glow">
+                                    <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-primary-900">Unloq AI</h2>
+                                    <p class="text-sm text-primary-600">あなたの知識パートナー</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-accent-green rounded-full animate-pulse"></div>
+                                <span class="text-sm text-primary-600 font-medium">オンライン</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- メッセージエリア -->
+                    <div class="chat-messages" id="messages-container">
+                        <div class="text-center py-12 animate-fade-in" id="welcome-section">
+                            <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-accent-blue to-accent-purple rounded-3xl flex items-center justify-center shadow-2xl animate-bounce-subtle">
+                                <i data-lucide="brain" class="w-12 h-12 text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-primary-900 mb-4">何でもお聞きください</h3>
+                            <p class="text-primary-600 max-w-md mx-auto leading-relaxed mb-8">
+                                複雑な情報を分かりやすく、学習をサポートします。<br>
+                                どのようなことでもお気軽にご質問ください。
+                            </p>
+
+                            <!-- クイックアクション -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto" id="quick-actions">
+                                <div class="quick-action-card" onclick="sendQuickAction('複雑な情報を分かりやすく説明して')">
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+                                        <i data-lucide="search" class="w-7 h-7 text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-primary-900 mb-2">情報を探索</h4>
+                                    <p class="text-sm text-primary-600 leading-relaxed">複雑な情報を分かりやすく整理します</p>
+                                </div>
+
+                                <div class="quick-action-card" onclick="sendQuickAction('この分野について詳しく教えて')">
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-purple to-purple-600 flex items-center justify-center mb-4 shadow-lg">
+                                        <i data-lucide="brain" class="w-7 h-7 text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-primary-900 mb-2">知識を深める</h4>
+                                    <p class="text-sm text-primary-600 leading-relaxed">AI が学習をサポートします</p>
+                                </div>
+
+                                <div class="quick-action-card" onclick="sendQuickAction('効率的な学習方法を教えて')">
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-green to-green-600 flex items-center justify-center mb-4 shadow-lg">
+                                        <i data-lucide="book-open" class="w-7 h-7 text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-primary-900 mb-2">学習を加速</h4>
+                                    <p class="text-sm text-primary-600 leading-relaxed">効率的な学習方法を提案します</p>
+                                </div>
+
+                                <div class="quick-action-card" onclick="sendQuickAction('このデータから何が分かる？')">
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-orange to-orange-600 flex items-center justify-center mb-4 shadow-lg">
+                                        <i data-lucide="zap" class="w-7 h-7 text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-primary-900 mb-2">インサイト発見</h4>
+                                    <p class="text-sm text-primary-600 leading-relaxed">データから洞察を抽出します</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 入力エリア -->
+                    <div class="chat-input-container">
+                        <div class="relative">
+                            <textarea
+                                id="message-input"
+                                placeholder="何でもお聞きください..."
+                                class="w-full input-premium pr-14 resize-none"
+                                rows="1"
+                                style="min-height: 48px; max-height: 120px;"
+                                onkeypress="handleKeyPress(event)"
+                                oninput="autoResize(this)"
+                            ></textarea>
+                            <button 
+                                id="send-button"
+                                onclick="sendMessage()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-accent-blue to-accent-purple text-white rounded-xl flex items-center justify-center hover:scale-105 transition-transform duration-200 shadow-lg"
+                            >
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <p class="text-xs text-primary-500">
+                                <kbd class="px-2 py-1 bg-primary-100 rounded text-xs">Enter</kbd> で送信 • 
+                                <kbd class="px-2 py-1 bg-primary-100 rounded text-xs">Shift+Enter</kbd> で改行
+                            </p>
+                            <div class="flex items-center gap-2 text-xs text-primary-500">
+                                <div class="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
+                                <span>AI準備完了</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- サイドバー -->
+            <div class="lg:col-span-1 space-y-6 animate-slide-up" style="animation-delay: 0.2s;">
+                <!-- プロフィール設定 -->
+                <div class="sidebar-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-900 to-primary-700 rounded-xl flex items-center justify-center shadow-lg">
+                            <i data-lucide="settings" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-primary-900">設定</h3>
+                            <p class="text-sm text-primary-600">パーソナライズ</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-primary-800 mb-2">年齢</label>
+                                <input type="number" placeholder="30" class="input-premium w-full">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-primary-800 mb-2">年収</label>
+                                <input type="number" placeholder="500" class="input-premium w-full">
+                            </div>
+                        </div>
+                        <button class="w-full btn-premium btn-primary py-3">
+                            <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                            保存
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 統計情報 -->
+                <div class="sidebar-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent-blue to-accent-purple rounded-xl flex items-center justify-center shadow-lg">
+                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-primary-900">アクティビティ</h3>
+                            <p class="text-sm text-primary-600">利用状況</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="stat-card text-center">
+                            <div class="flex items-center justify-center mb-2">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-accent-blue mr-2"></i>
+                                <span class="stat-number" id="conversation-count">0</span>
+                            </div>
+                            <p class="text-sm font-semibold text-primary-700">会話数</p>
+                        </div>
+                        <div class="stat-card text-center">
+                            <div class="flex items-center justify-center mb-2">
+                                <i data-lucide="users" class="w-5 h-5 text-accent-green mr-2"></i>
+                                <span class="stat-number" id="user-count">0</span>
+                            </div>
+                            <p class="text-sm font-semibold text-primary-700">利用者</p>
+                        </div>
+                    </div>
+                    
+                    <!-- プログレスリング -->
+                    <div class="mt-6 text-center">
+                        <div class="relative inline-flex items-center justify-center">
+                            <svg class="w-20 h-20 progress-ring">
+                                <circle cx="40" cy="40" r="30" stroke="#f1f5f9" stroke-width="6" fill="none"/>
+                                <circle cx="40" cy="40" r="30" stroke="#3b82f6" stroke-width="6" fill="none"
+                                        class="progress-ring-circle" stroke-dasharray="188.4" stroke-dashoffset="150"/>
+                            </svg>
+                            <div class="absolute">
+                                <span class="text-lg font-bold text-primary-900">75%</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-primary-600 mt-2">学習進捗</p>
+                    </div>
+                </div>
+
+                <!-- システム状況 -->
+                <div class="sidebar-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent-green to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i data-lucide="activity" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-primary-900">システム</h3>
+                            <p class="text-sm text-primary-600">稼働状況</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3" id="system-status">
+                        <!-- システム状況は動的に読み込み -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 機能紹介セクション -->
+        <section class="mt-20 animate-fade-in" style="animation-delay: 0.4s;">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-accent-blue/10 to-accent-purple/10 rounded-full text-sm font-bold text-primary-800 mb-8 border border-accent-blue/20">
+                    <i data-lucide="sparkles" class="w-5 h-5 mr-2 text-accent-blue"></i>
+                    知識を解き放つ革新的なAI体験
+                </div>
+                
+                <h2 class="text-5xl font-bold text-primary-900 mb-6 leading-tight">
+                    学習の新しい
+                    <span class="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">体験</span>
+                </h2>
+                <p class="text-xl text-primary-600 max-w-3xl mx-auto leading-relaxed">
+                    複雑な情報を直感的に理解し、あなたの知識を次のレベルへ。<br>
+                    AIが個人に最適化された学習体験を提供します。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+                <div class="feature-card group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent-blue to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-primary-900 mb-4">AI駆動の理解</h3>
+                    <p class="text-primary-600 leading-relaxed text-lg">複雑な概念を直感的に理解できるよう、AIが最適な説明を生成し、あなたの学習スタイルに合わせてカスタマイズします。</p>
+                </div>
+
+                <div class="feature-card group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent-green to-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="shield" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-primary-900 mb-4">プライバシー重視</h3>
+                    <p class="text-primary-600 leading-relaxed text-lg">あなたの学習データは最高レベルのセキュリティで保護され、個人のプライバシーを最優先に設計されています。</p>
+                </div>
+
+                <div class="feature-card group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent-purple to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="users" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-primary-900 mb-4">パーソナライズ</h3>
+                    <p class="text-primary-600 leading-relaxed text-lg">あなたの学習スタイル、興味、目標に合わせて、完全にカスタマイズされた学習体験を提供します。</p>
+                </div>
+
+                <div class="feature-card group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent-orange to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="bar-chart-3" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-primary-900 mb-4">進歩の可視化</h3>
+                    <p class="text-primary-600 leading-relaxed text-lg">学習の進捗と理解度を美しいビジュアルで追跡し、成長を実感できる詳細な分析を提供します。</p>
+                </div>
+            </div>
+
+            <!-- CTA セクション -->
+            <div class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 rounded-3xl p-16 text-white overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-accent-blue/20 to-accent-purple/20"></div>
+                <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-32 -translate-x-32"></div>
+                
+                <div class="relative z-10 text-center">
+                    <h3 class="text-4xl font-bold mb-6">
+                        今すぐ始めましょう
+                    </h3>
+                    <p class="text-xl text-primary-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+                        あなたの学習と成長をサポートする、新しいAIパートナーとの旅を始めませんか？<br>
+                        無料で今すぐ体験できます。
+                    </p>
+                    <button class="inline-flex items-center px-10 py-4 bg-white text-primary-900 rounded-2xl font-bold text-lg hover:bg-primary-50 transition-all duration-300 shadow-2xl hover:scale-105">
+                        <i data-lucide="rocket" class="w-6 h-6 mr-3"></i>
+                        無料で始める
+                        <i data-lucide="arrow-right" class="w-6 h-6 ml-3"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フローティングアクションボタン -->
+    <div class="floating-action-button" onclick="scrollToTop()">
+        <i data-lucide="arrow-up" class="w-6 h-6"></i>
+    </div>
+
+    <script>
+        // Lucide アイコンの初期化
+        lucide.createIcons();
+        
+        // グローバル変数
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let conversationCount = 0;
+        let isTyping = false;
+
+        // 通知システム
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            const icon = notification.querySelector('i');
+            
+            text.textContent = message;
+            
+            if (type === 'success') {
+                icon.setAttribute('data-lucide', 'check-circle');
+                icon.className = 'w-5 h-5 text-green-500';
+            } else if (type === 'error') {
+                icon.setAttribute('data-lucide', 'x-circle');
+                icon.className = 'w-5 h-5 text-red-500';
+            }
+            
+            lucide.createIcons();
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // ローディングオーバーレイ
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        // テキストエリアの自動リサイズ
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // メッセージ送信（高速化版）
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // UI更新
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            hideWelcomeSection();
+            showTyping();
+            
+            const startTime = performance.now();
+            
+            try {
+                // タイムアウト設定（10秒）
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch('/ask-enhanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: message,
+                        user_id: userId
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                const data = await response.json();
+                hideTyping();
+                
+                const responseTime = performance.now() - startTime;
+                console.log(`⚡ 回答生成時間: ${responseTime.toFixed(0)}ms`);
+                
+                if (response.ok) {
+                    // キャッシュからの回答かどうか表示
+                    const cacheIndicator = data.from_cache ? ' 💾' : '';
+                    addMessage(data.answer + cacheIndicator, 'bot', data.confidence_score, responseTime);
+                    conversationCount++;
+                    updateStats();
+                    
+                    // 高速回答の場合は特別な通知
+                    if (responseTime < 1000) {
+                        showNotification(`⚡ 高速回答 (${responseTime.toFixed(0)}ms)`);
+                    } else {
+                        showNotification('回答を生成しました');
+                    }
+                } else {
+                    addMessage('申し訳ございません。エラーが発生しました。しばらく時間をおいて再度お試しください。', 'bot');
+                    showNotification('エラーが発生しました', 'error');
+                }
+            } catch (error) {
+                hideTyping();
+                if (error.name === 'AbortError') {
+                    addMessage('回答の生成に時間がかかりすぎています。より簡潔な質問で再度お試しください。', 'bot');
+                    showNotification('タイムアウトエラー', 'error');
+                } else {
+                    addMessage('ネットワークエラーが発生しました。インターネット接続を確認してください。', 'bot');
+                    showNotification('ネットワークエラー', 'error');
+                }
+            }
+        }
+
+        // クイックアクション送信
+        function sendQuickAction(message) {
+            document.getElementById('message-input').value = message;
+            sendMessage();
+        }
+
+        // ウェルカムセクションを非表示
+        function hideWelcomeSection() {
+            const welcomeSection = document.getElementById('welcome-section');
+            if (welcomeSection) {
+                welcomeSection.style.display = 'none';
+            }
+        }
+
+        // メッセージ追加
+        function addMessage(content, sender, confidence = null, responseTime = null) {
+            const container = document.getElementById('messages-container');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex gap-4 mb-6 animate-slide-up ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            const isUser = sender === 'user';
+            const avatarClass = isUser ? 'bg-gradient-to-br from-primary-600 to-primary-700' : 'bg-gradient-to-br from-accent-blue to-accent-purple';
+            const messageClass = isUser ? 'message-user' : 'message-bot';
+            const iconName = isUser ? 'user' : 'bot';
+            
+            messageDiv.innerHTML = `
+                ${!isUser ? `<div class="w-10 h-10 rounded-xl ${avatarClass} flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                    <i data-lucide="${iconName}" class="w-5 h-5 text-white"></i>
+                </div>` : ''}
+                <div class="max-w-[85%] ${isUser ? 'order-first' : ''}">
+                    <div class="message-bubble ${messageClass}">
+                        <p class="whitespace-pre-wrap leading-relaxed">${content}</p>
+                        ${confidence ? `<div class="mt-3 flex items-center space-x-3">
+                            <div class="flex-1 bg-slate-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-accent-blue to-accent-purple h-2 rounded-full transition-all duration-500" style="width: ${confidence * 100}%"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-600">${(confidence * 100).toFixed(0)}%</span>
+                        </div>` : ''}
+                    </div>
+                    ${!isUser ? `<div class="flex items-center space-x-2 mt-3">
+                        <button onclick="copyToClipboard('${content.replace(/'/g, "\\'")}')" class="p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200" title="コピー">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200" title="良い回答">
+                            <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200" title="改善が必要">
+                            <i data-lucide="thumbs-down" class="w-4 h-4"></i>
+                        </button>
+                    </div>` : ''}
+                    <div class="mt-2 text-xs text-primary-400 font-medium">
+                        ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+                        ${responseTime && !isUser ? ` • ⚡ ${responseTime.toFixed(0)}ms` : ''}
+                    </div>
+                </div>
+                ${isUser ? `<div class="w-10 h-10 rounded-xl ${avatarClass} flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                    <i data-lucide="${iconName}" class="w-5 h-5 text-white"></i>
+                </div>` : ''}
+            `;
+            
+            container.appendChild(messageDiv);
+            lucide.createIcons();
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // タイピング表示
+        function showTyping() {
+            if (isTyping) return;
+            isTyping = true;
+            
+            const container = document.getElementById('messages-container');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex gap-4 mb-6 animate-slide-up';
+            typingDiv.innerHTML = `
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center shadow-lg">
+                    <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="message-bot typing-indicator">
+                    <div class="flex items-center gap-2">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <span class="text-primary-700 ml-2">考えています...</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            lucide.createIcons();
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // タイピング非表示
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) {
+                typing.remove();
+                isTyping = false;
+            }
+        }
+
+        // クリップボードにコピー
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('クリップボードにコピーしました');
+            });
+        }
+
+        // キー押下処理
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 統計更新
+        function updateStats() {
+            document.getElementById('conversation-count').textContent = conversationCount;
+        }
+
+        // トップにスクロール
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 統計データ読み込み
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                document.getElementById('user-count').textContent = data.registered_users || 0;
+            } catch (error) {
+                console.error('統計読み込みエラー:', error);
+            }
+        }
+
+        // システム状況読み込み
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/external-apis/status');
+                const data = await response.json();
+                const container = document.getElementById('system-status');
+                
+                const services = [
+                    { name: 'AI エンジン', status: data.gemini?.configured, icon: 'brain' },
+                    { name: 'データベース', status: data.e_gov_api?.configured, icon: 'database' },
+                    { name: '統計API', status: data.e_stat_api?.configured, icon: 'bar-chart' },
+                    { name: 'ニュース', status: data.x_api?.configured, icon: 'newspaper' }
+                ];
+                
+                container.innerHTML = services.map(service => `
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-primary-25 rounded-xl border border-primary-100">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="${service.icon}" class="w-5 h-5 text-primary-600"></i>
+                            <span class="text-sm font-semibold text-primary-800">${service.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${service.status ? `
+                                <div class="w-3 h-3 bg-accent-green rounded-full animate-pulse"></div>
+                                <span class="text-xs text-accent-green font-bold">稼働中</span>
+                            ` : `
+                                <div class="w-3 h-3 bg-accent-orange rounded-full animate-pulse"></div>
+                                <span class="text-xs text-accent-orange font-bold">テスト</span>
+                            `}
+                        </div>
+                    </div>
+                `).join('');
+                
+                lucide.createIcons();
+            } catch (error) {
+                console.error('システム状況読み込みエラー:', error);
+            }
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadSystemStatus();
+            
+            // 定期更新
+            setInterval(loadStats, 30000);
+            setInterval(loadSystemStatus, 60000);
+            
+            // アニメーション遅延の適用
+            const elements = document.querySelectorAll('.animate-slide-up, .animate-fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // パフォーマンス監視
+        if ('performance' in window) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    const loadTime = perfData.loadEventEnd - perfData.loadEventStart;
+                    console.log(`ページ読み込み時間: ${loadTime.toFixed(2)}ms`);
+                }, 0);
+            });
+        }
+
+        // PWA 機能
+        let deferredPrompt;
+        let isInstalled = false;
+
+        // Service Worker 登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                        
+                        // 更新チェック
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showNotification('新しいバージョンが利用可能です', 'info');
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // インストールプロンプト
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+
+        // インストール完了検知
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed');
+            isInstalled = true;
+            hideInstallButton();
+            showNotification('Unloqがインストールされました！', 'success');
+        });
+
+        // インストールボタン表示
+        function showInstallButton() {
+            const installButton = document.createElement('button');
+            installButton.id = 'install-button';
+            installButton.className = 'fixed bottom-24 right-6 bg-gradient-to-r from-accent-blue to-accent-purple text-white px-6 py-3 rounded-2xl font-bold shadow-2xl hover:scale-105 transition-transform duration-300 z-50';
+            installButton.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                    <span>アプリをインストール</span>
+                </div>
+            `;
+            installButton.addEventListener('click', installApp);
+            document.body.appendChild(installButton);
+            lucide.createIcons();
+        }
+
+        // インストールボタン非表示
+        function hideInstallButton() {
+            const installButton = document.getElementById('install-button');
+            if (installButton) {
+                installButton.remove();
+            }
+        }
+
+        // アプリインストール
+        async function installApp() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+            
+            deferredPrompt = null;
+            hideInstallButton();
+        }
+
+        // オフライン検知
+        window.addEventListener('online', () => {
+            showNotification('インターネットに接続されました', 'success');
+            document.body.classList.remove('offline');
+        });
+
+        window.addEventListener('offline', () => {
+            showNotification('オフラインモードです', 'info');
+            document.body.classList.add('offline');
+        });
+
+        // バックグラウンド同期
+        function requestBackgroundSync() {
+            if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+                navigator.serviceWorker.ready.then(registration => {
+                    return registration.sync.register('background-sync');
+                }).catch(error => {
+                    console.error('Background sync registration failed:', error);
+                });
+            }
+        }
+
+        // プッシュ通知許可
+        async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Notification permission granted');
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ショートカット処理
+        function handleShortcuts() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            if (action === 'new_question') {
+                document.getElementById('message-input').focus();
+            } else if (action === 'history') {
+                // 履歴表示の実装
+                showNotification('履歴機能は開発中です', 'info');
+            }
+        }
+
+        // 初期化時にショートカット処理
+        document.addEventListener('DOMContentLoaded', () => {
+            handleShortcuts();
+            
+            // 通知許可をリクエスト
+            setTimeout(() => {
+                requestNotificationPermission();
+            }, 5000);
+        });
+
+        // ネットワーク状態監視
+        function monitorNetworkStatus() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            
+            if (connection) {
+                function updateNetworkStatus() {
+                    const networkInfo = {
+                        effectiveType: connection.effectiveType,
+                        downlink: connection.downlink,
+                        rtt: connection.rtt
+                    };
+                    
+                    console.log('Network status:', networkInfo);
+                    
+                    // 低速接続の場合の最適化
+                    if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+                        document.body.classList.add('slow-connection');
+                    } else {
+                        document.body.classList.remove('slow-connection');
+                    }
+                }
+                
+                connection.addEventListener('change', updateNetworkStatus);
+                updateNetworkStatus();
+            }
+        }
+
+        // ネットワーク監視開始
+        monitorNetworkStatus();
+    </script>
+</body>
+</html>
