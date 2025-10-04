@@ -17,7 +17,7 @@ if __name__ == '__main__':
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    # Run the application
+  # Run the application
     port = int(os.getenv('PORT', 8080))
     app.run(
         host='0.0.0.0',
